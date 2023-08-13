@@ -42,7 +42,7 @@ class OrderApiController extends Controller
             'payment_method' => 'required',
             'address_id' => 'required',
             'quantity' => 'required'
-        ],[
+        ], [
             'required' => 'The :attribute field is required.',
         ]);
 
@@ -63,7 +63,7 @@ class OrderApiController extends Controller
             $latitude = $user_address->latitude;
             $longitude = $user_address->longitude;
             $pincode_id = $user_address->pincode_id;
-            $area_id = $user_address->area_id??0;
+            $area_id = $user_address->area_id ?? 0;
         } else {
             return CommonHelper::responseError(__('something_is_missing_in_your_address'));
         }
@@ -80,13 +80,13 @@ class OrderApiController extends Controller
         $promo_code = "";
         $promo_discount = 0;
 
-        if(isset($request->promocode_id) && $request->promocode_id && $request->promocode_id != ""){
+        if (isset($request->promocode_id) && $request->promocode_id && $request->promocode_id != "") {
             $promo = CommonHelper::getValidatedPromoCode($request->promocode_id, $total, $user_id);
 
-            if (isset($promo['id']) && $request->promocode_id == $promo['id']){
+            if (isset($promo['id']) && $request->promocode_id == $promo['id']) {
                 $final_total = $promo['discounted_amount'] + $delivery_charge;
                 $promo_discount = $promo['discount'];
-                $promo_code = $promo['promo_code']."(".$promo['discount'].")";
+                $promo_code = $promo['promo_code'] . "(" . $promo['discount'] . ")";
             }
         }
 
@@ -94,18 +94,18 @@ class OrderApiController extends Controller
         $payment_method = $request->payment_method;
         $delivery_time = (isset($request->delivery_time)) ? $request->delivery_time : "";
 
-        $active_status = $payment_method == Transaction::$paymentTypeCod ? OrderStatusList::$received: OrderStatusList::$paymentPending;
+        $active_status = $payment_method == Transaction::$paymentTypeCod ? OrderStatusList::$received : OrderStatusList::$paymentPending;
         $order_from = (isset($request->order_from) && !empty($request->order_from)) ? $request->order_from : 0;
 
         $status[] = array($active_status, date("d-m-Y h:i:sa"));
         $quantity = $request->quantity;
 
-        $quantity_arr = explode(",",$quantity);
-        $item_arr = explode(",",$items);
+        $quantity_arr = explode(",", $quantity);
+        $item_arr = explode(",", $items);
 
 
         foreach ($item_arr as $key => $item) {
-            $variant = ProductVariant::where("id",$item)->first();
+            $variant = ProductVariant::where("id", $item)->first();
             if (empty($variant)) {
                 return CommonHelper::responseError(__('found_one_or_more_items_in_order_is_not_available_for_order'));
             }
@@ -114,7 +114,7 @@ class OrderApiController extends Controller
         $item_details = CommonHelper::getProductByVariantId($item_arr);
 
 
-        $totalTax = CommonHelper:: calculateOrderTotalTax($item_details, $quantity_arr);
+        $totalTax = CommonHelper::calculateOrderTotalTax($item_details, $quantity_arr);
         $order_total_tax_amt = $totalTax['order_total_tax_amt'];
         $order_total_tax_per = $totalTax['order_total_tax_per'];
 
@@ -201,6 +201,8 @@ class OrderApiController extends Controller
             $order->pincode_id = $pincode_id;
             $order->area_id = $area_id;
             $order->address_id = $address_id;
+            $order->pickup_address = $request->pickup_address;
+            $order->pickup_datetime = $request->pickup_datetime;
             $order->save();
 
             $order_id = $order->id;
@@ -274,7 +276,7 @@ class OrderApiController extends Controller
                 $order_item->save();
 
                 /* here $is_unlimited_stock  0 = Limited and 1 = Unlimited */
-                if($is_unlimited_stock != 1) {
+                if ($is_unlimited_stock != 1) {
                     if ($type == 'packet') {
                         $stock = $total_stock - $quantity;
 
@@ -300,7 +302,6 @@ class OrderApiController extends Controller
                             $product_variant->status = 0; // here status 0 => "Sold Out" & 1 => "Available"
                             $product_variant->save();
                         }
-
                     } elseif ($type == 'loose') {
                         /*if ($measurement_unit_id == $stock_unit_id) {
                             $stock = $quantity * $measurement;
@@ -345,30 +346,30 @@ class OrderApiController extends Controller
         try {
             CommonHelper::sendNotificationOrderStatus($order);
             $admins = Admin::get();
-            foreach ($admins as $admin){
-                $admin->notify(new OrderNotification($order->id,'new'));
+            foreach ($admins as $admin) {
+                $admin->notify(new OrderNotification($order->id, 'new'));
             }
-        }catch (\Exception $e){
-
+        } catch (\Exception $e) {
         }
 
-        if($payment_method == Transaction::$paymentTypeCod){
+        if ($payment_method == Transaction::$paymentTypeCod) {
             CommonHelper::addSellerWiseOrder($order->id);
             return CommonHelper::responseSuccess(__('order_placed_successfully'));
-        }else{
-            return CommonHelper::responseWithData(['order_id'=>$order->id]);
+        } else {
+            return CommonHelper::responseWithData(['order_id' => $order->id]);
         }
-
     }
 
-    public function orderTest(Request $request){
+    public function orderTest(Request $request)
+    {
         $result = CommonHelper::findGoogleMapDistanceLocal(23.24114205388701, 69.66720847135304, 23.235700208395272, 69.7287490771754);
         return CommonHelper::responseWithData($result);
     }
 
-    public function initiateTransaction(Request $request){
+    public function initiateTransaction(Request $request)
+    {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'order_id' => 'required',
             'payment_method' => 'required',
         ]);
@@ -391,7 +392,7 @@ class OrderApiController extends Controller
 
         if ($request->payment_method == "Razorpay") {
 
-            \Log::error("payment_method = ".$request->payment_method);
+            \Log::error("payment_method = " . $request->payment_method);
 
             $transaction_id = TransactionHelper::createOrderonRazorpay($order->id);
             if ($transaction_id == "") {
@@ -402,19 +403,18 @@ class OrderApiController extends Controller
             $user_id = auth()->user()->id;
             $order_id = $request->order_id;
 
-            $order = Order::where('id',$order_id)->first();
+            $order = Order::where('id', $order_id)->first();
 
             if (!empty($order)) {
-                $out['paypal_redirect_url'] = url('customer/paypal_payment_url?user_id='.$user_id.'&order_id='.$order_id);
+                $out['paypal_redirect_url'] = url('customer/paypal_payment_url?user_id=' . $user_id . '&order_id=' . $order_id);
             }
+        } else if ($request->payment_method == "Stripe") {
 
-        }else if ($request->payment_method == "Stripe") {
-
-            \Log::error("payment_method = ".$request->payment_method);
+            \Log::error("payment_method = " . $request->payment_method);
 
 
             $response = TransactionHelper::createOrderOnStripe($order);
-            \Log::error("order->final_total  = ".$order->final_total);
+            \Log::error("order->final_total  = " . $order->final_total);
 
             if ($response == "") {
                 return CommonHelper::responseError("Error while communicating with Stripe server");
@@ -431,16 +431,17 @@ class OrderApiController extends Controller
         $order->payment_method = $request->payment_method;
         $order->save();
 
-        if($transaction_id != ""){
+        if ($transaction_id != "") {
             $out['transaction_id'] = $transaction_id;
         }
         return CommonHelper::responseWithData($out);
     }
 
     /*Paypal Start*/
-    public function paypalPaymentUrl(Request $request){
+    public function paypalPaymentUrl(Request $request)
+    {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'user_id' => 'required',
             'order_id' => 'required',
         ]);
@@ -451,9 +452,9 @@ class OrderApiController extends Controller
 
         $app_name = Setting::get_value('app_name');
 
-        $user = User::where('id',$request->user_id)->first();
-        $order = Order::where('id',$request->order_id)->first();
-        if($order) {
+        $user = User::where('id', $request->user_id)->first();
+        $order = Order::where('id', $request->order_id)->first();
+        if ($order) {
 
             header("Content-Type: html");
 
@@ -486,7 +487,6 @@ class OrderApiController extends Controller
             // Render paypal form
             $paypal->paypal_auto_form();
         }
-
     }
 
     public function paypalRedirect(Request $request)
@@ -494,7 +494,7 @@ class OrderApiController extends Controller
         $paypalInfo = $request->all();
         $website_url = config('app.website_url');
 
-        Log::info("paypalRedirect : ",[$paypalInfo]);
+        Log::info("paypalRedirect : ", [$paypalInfo]);
         $order_status = Transaction::$statusFailed;
         if (!empty($paypalInfo) && isset($paypalInfo['payment_status']) && strtolower($paypalInfo['payment_status']) == "completed") {
             $response['error'] = false;
@@ -520,18 +520,18 @@ class OrderApiController extends Controller
             // return CommonHelper::responseError("Payment Cancelled / Declined");
         }
 
-        echo"<html>
+        echo "<html>
         <body>
         Redirecting...!
         </body>
         <script>
             //const parentOrigin = window.opener.location.origin;
-            const parentOrigin = '".$website_url."';
+            const parentOrigin = '" . $website_url . "';
             console.log('Parent origin:', parentOrigin);
             console.log('started')
             window.addEventListener('load', function(){
             console.log('loaded')
-            window.opener.postMessage('".$order_status."',parentOrigin);
+            window.opener.postMessage('" . $order_status . "',parentOrigin);
             window.close();
             });
         </script>
@@ -542,7 +542,7 @@ class OrderApiController extends Controller
     {
         // Paypal posts the transaction data
         $paypalInfo = $request->all();
-        Log::info("Paypal IPN : ",[$paypalInfo]);
+        Log::info("Paypal IPN : ", [$paypalInfo]);
 
         if (!empty($paypalInfo)) {
             // Validate and get the ipn response
@@ -555,7 +555,7 @@ class OrderApiController extends Controller
                 $userData = explode('|', $paypalInfo['custom']);
 
                 //for react app
-                if(is_null($paypalInfo["item_number"]) && isset($userData[2])){
+                if (is_null($paypalInfo["item_number"]) && isset($userData[2])) {
                     $paypalInfo["item_number"] = $userData[2];
                 }
 
@@ -585,7 +585,7 @@ class OrderApiController extends Controller
                     $data['transaction_date'] = date('Y-m-d H:i:s');
                     //$this->transaction_model->add_transaction($data);
 
-                   /* $this->load->model('customer_model');
+                    /* $this->load->model('customer_model');
                     if ($this->customer_model->update_balance($amount, $user_id, 'add')) {
                         $response['error'] = false;
                         $response['transaction_status'] = "success";
@@ -617,7 +617,7 @@ class OrderApiController extends Controller
                     $data['message'] = 'Payment Verified';
                     $data['transaction_date'] = date('Y-m-d H:i:s');
 
-                    $order = Order::where('id',$data['order_id'])->first();
+                    $order = Order::where('id', $data['order_id'])->first();
                     if ($paypalInfo["payment_status"] == 'Completed') {
                         //send_mail($userData[1], 'Wait for Order Confirmation', 'Thanks for your order. We will let you know once your order confirm by partner on this email ID.');
 
@@ -630,7 +630,7 @@ class OrderApiController extends Controller
                         $transaction = Transaction::create($data);
                         //Mark payment received
                         $order->active_status = OrderStatusList::$received;
-                        $order->transaction_id = $transaction->id??0;
+                        $order->transaction_id = $transaction->id ?? 0;
                         $order->save();
 
                         /*$order_status = array();
@@ -642,7 +642,6 @@ class OrderApiController extends Controller
                         CommonHelper::setOrderStatus($order_status);*/
 
                         CommonHelper::addSellerWiseOrder($order->id);
-
                     } else if (
                         $paypalInfo["payment_status"] == 'Expired' || $paypalInfo["payment_status"] == 'Failed'
                         || $paypalInfo["payment_status"] == 'Refunded' || $paypalInfo["payment_status"] == 'Reversed'
@@ -669,7 +668,7 @@ class OrderApiController extends Controller
                         $transaction = Transaction::create($data);
                         //Mark payment received
                         $order->active_status = OrderStatusList::$cancelled;
-                        $order->transaction_id = $transaction->id??0;
+                        $order->transaction_id = $transaction->id ?? 0;
                         $order->save();
 
                         /*$order_status = array();
@@ -722,13 +721,16 @@ class OrderApiController extends Controller
         $status = Transaction::$statusFailed;
         $txn_id = $request->transaction_id;
 
-        if (isset($request->payment_method) && in_array($request->payment_method,
+        if (
+            isset($request->payment_method) && in_array(
+                $request->payment_method,
                 array(
                     Transaction::$paymentTypeRazorpay,
                     Transaction::$paymentTypePaystack,
                     Transaction::$paymentTypeStripe,
                     Transaction::$paymentTypePaytm
-                ))
+                )
+            )
         ) {
 
 
@@ -741,13 +743,12 @@ class OrderApiController extends Controller
                 if (!$signatureIsVaid) {
                     $status = Transaction::$statusSuccess;
                 }
-
             } else if ($request->payment_method == Transaction::$paymentTypePaystack) {
 
                 $paystack = new Paystack();
                 $payment = $paystack->verify_transaction($txn_id);
 
-                Log::info("payment Paystack :  ",[$payment]);
+                Log::info("payment Paystack :  ", [$payment]);
 
                 if (!empty($payment)) {
                     $payment = json_decode($payment, true);
@@ -755,7 +756,7 @@ class OrderApiController extends Controller
                         $status = Transaction::$statusSuccess;
                     }
                 }
-            } else if($request->payment_method == Transaction::$paymentTypeStripe) {
+            } else if ($request->payment_method == Transaction::$paymentTypeStripe) {
 
                 try {
 
@@ -769,15 +770,14 @@ class OrderApiController extends Controller
                         []
                     );
                     // "status" => "succeeded"
-                    if($paymentIntent->status === "succeeded"){
+                    if ($paymentIntent->status === "succeeded") {
                         $status = Transaction::$statusSuccess;
                     }
-
                 } catch (\Exception $e) {
-                    Log::error("Stripe Error : ",[$e]);
+                    Log::error("Stripe Error : ", [$e]);
                     return CommonHelper::responseError($e->getMessage());
                 }
-            }else if($request->payment_method == Transaction::$paymentTypePaytm) {
+            } else if ($request->payment_method == Transaction::$paymentTypePaytm) {
 
                 //$payment = Paytm::transaction_status($txn_id);
                 $payment = Paytm::transaction_status($order->id);
@@ -797,9 +797,7 @@ class OrderApiController extends Controller
                 } else {
                     $status = Transaction::$statusFailed;
                 }
-
-
-            }else if($request->payment_method == Transaction::$paymentTypePaypal){
+            } else if ($request->payment_method == Transaction::$paymentTypePaypal) {
 
                 $transaction_id = $request->transaction_id;
 
@@ -807,11 +805,11 @@ class OrderApiController extends Controller
                 $server_output = $paypalClient->getPayment($transaction_id);
                 $result = json_decode($server_output, 1);
                 \Log::info('-------------Paypal start---------------');
-                \Log::info('paypal result : ',[$result]);
+                \Log::info('paypal result : ', [$result]);
 
                 $status = Transaction::$statusFailed;
 
-                if(isset($result['state']) && $result['state'] == 'approved'){
+                if (isset($result['state']) && $result['state'] == 'approved') {
                     $status = Transaction::$statusSuccess;
                     $gateway_amount = $result['transactions'][0]['amount']['total'];
                 }
@@ -830,11 +828,11 @@ class OrderApiController extends Controller
             $transaction = Transaction::create($transactionData);
         }
 
-        if($status==Transaction::$statusSuccess){
+        if ($status == Transaction::$statusSuccess) {
 
             //Mark payment received
             $order->active_status = OrderStatusList::$received;
-            $order->transaction_id = $transaction->id??0;
+            $order->transaction_id = $transaction->id ?? 0;
             $order->save();
 
             /*$order_status = array();
@@ -848,12 +846,13 @@ class OrderApiController extends Controller
             CommonHelper::addSellerWiseOrder($order->id);
 
             return CommonHelper::responseSuccess("Order Placed Successfully");
-        }else{
+        } else {
             return CommonHelper::responseError("Transaction Failed, Please try again!");
         }
     }
 
-    public function updateOrderStatus(Request $request){
+    public function updateOrderStatus(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'order_item_id' => 'required',
             'status' => 'required'
@@ -863,31 +862,31 @@ class OrderApiController extends Controller
         }
 
         $order_item_id = $request->order_item_id;
-        $order_item = OrderItem::select( "*")->where("id", $order_item_id)->first();
+        $order_item = OrderItem::select("*")->where("id", $order_item_id)->first();
 
-        if(empty($order_item)){
+        if (empty($order_item)) {
             return CommonHelper::responseError('Order Item Not found.');
         }
 
-        if(isset($request->order_id)){
+        if (isset($request->order_id)) {
             $id = $request->order_id;
-        }else{
+        } else {
             $id = $order_item->order_id;
         }
-        $order = Order::select( "*")->where("id", $id)->first();
-        if(empty($order)){
+        $order = Order::select("*")->where("id", $id)->first();
+        if (empty($order)) {
             return CommonHelper::responseError('Order Not found.');
         }
 
-        $user = User::select("*")->where('id',$order->user_id)->first();
-        if(empty($user)){
+        $user = User::select("*")->where('id', $order->user_id)->first();
+        if (empty($user)) {
             return CommonHelper::responseError('User Not found.');
         }
 
         $postStatus = $request->status;
-        $selectedStatus = OrderStatusList::where('id',$request->status_id)->value('status');
-        if($order_item->active_status == $request->status_id){
-            return CommonHelper::responseError("This Order Item is already ".$selectedStatus."!");
+        $selectedStatus = OrderStatusList::where('id', $request->status_id)->value('status');
+        if ($order_item->active_status == $request->status_id) {
+            return CommonHelper::responseError("This Order Item is already " . $selectedStatus . "!");
         }
 
         /* Cannot return order unless it is delivered */
@@ -904,16 +903,16 @@ class OrderApiController extends Controller
 
 
 
-        if (!empty($postStatus)){
+        if (!empty($postStatus)) {
 
             /*if($postStatus == OrderStatusList::$received){
                 $order->active_status = OrderStatusList::$received;
                 $order->save();
             }*/
 
-            if($postStatus == OrderStatusList::$delivered){
+            if ($postStatus == OrderStatusList::$delivered) {
 
-                if($order->payment_method == Transaction::$paymentTypeCod){
+                if ($order->payment_method == Transaction::$paymentTypeCod) {
 
                     // Save Device details
                     if ($request->device_type) {
@@ -935,7 +934,7 @@ class OrderApiController extends Controller
                     $transactionData['message'] = "";
                     $transactionData['transaction_date'] = date('Y-m-d H:i:s');
                     $transaction = Transaction::create($transactionData);
-                    $order->transaction_id = $transaction->id??0;
+                    $order->transaction_id = $transaction->id ?? 0;
                 }
 
                 $order->active_status = OrderStatusList::$delivered;
@@ -946,9 +945,9 @@ class OrderApiController extends Controller
 
                 return CommonHelper::responseSuccess("Order Status Updated Successfully");
                 /*Send Notification*/
-            }else{
-               $status = OrderStatusList::where('id',$postStatus)->first();
-               if(!empty($status)){
+            } else {
+                $status = OrderStatusList::where('id', $postStatus)->first();
+                if (!empty($status)) {
 
                     /*$order->active_status = $postStatus;
                     $order->save();*/
@@ -957,23 +956,23 @@ class OrderApiController extends Controller
                     $order_item->save();
 
                     return CommonHelper::responseSuccess("Order Status Updated Successfully");
-               }else{
-                   return CommonHelper::responseError('Status Not found.');
-               }
+                } else {
+                    return CommonHelper::responseError('Status Not found.');
+                }
             }
         }
-
     }
 
-    public function getOrders(Request $request){
+    public function getOrders(Request $request)
+    {
         /*
          // this is use on post method.
          $limit = $request->get('limit',12);
         $offset = $request->get('offset',0);*/
 
-        $limit = ($request->limit)??12;
-        $offset = ($request->offset)??0;
-        $page = $request->get('page',0);
+        $limit = ($request->limit) ?? 12;
+        $offset = ($request->offset) ?? 0;
+        $page = $request->get('page', 0);
 
         $order_id = $request->order_id;
         $user_id = auth()->user()->id;
@@ -982,14 +981,14 @@ class OrderApiController extends Controller
         //$where = !empty($order_id) ? " o.id = " . $order_id : "";
         //$sql = "select count(o.id) as total from orders o where user_id=" . $user_id . $where;
 
-        $sql = Order::select( DB::raw("count(id) as total"))
+        $sql = Order::select(DB::raw("count(id) as total"))
             ->where("user_id", $user_id);
-        if (!empty($order_id)){
-            $sql = $sql->where("id",$order_id);
+        if (!empty($order_id)) {
+            $sql = $sql->where("id", $order_id);
         }
 
-        if(isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id !=""){
-            $sql = $sql->where("active_status","=",$request->order_status_id);
+        if (isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id != "") {
+            $sql = $sql->where("active_status", "=", $request->order_status_id);
         }
 
         $total = $sql->first();
@@ -1000,31 +999,41 @@ class OrderApiController extends Controller
                 LEFT JOIN order_bank_transfers obt ON obt.order_id=o.id
             where user_id=" . $user_id . $where . " ORDER BY date_added DESC LIMIT $offset,$limit";*/
 
-        $sql = Order::select( "orders.*",'orders.id as order_id',"obt.message as bank_transfer_message","obt.status as bank_transfer_status",
-                        DB::raw('(select name from users as u where u.id = orders.user_id) as user_name') ,
-                        'address.address', 'address.landmark', 'address.area', 'address.city', 'address.state','address.pincode', 'address.country'
-                    )->from("orders as orders")
-                    ->leftJoin("order_bank_transfers as obt", "obt.order_id", "=", "orders.id")
-                    ->leftJoin('user_addresses as address', 'orders.address_id', '=', 'address.id')
+        $sql = Order::select(
+            "orders.*",
+            'orders.id as order_id',
+            "obt.message as bank_transfer_message",
+            "obt.status as bank_transfer_status",
+            DB::raw('(select name from users as u where u.id = orders.user_id) as user_name'),
+            'address.address',
+            'address.landmark',
+            'address.area',
+            'address.city',
+            'address.state',
+            'address.pincode',
+            'address.country'
+        )->from("orders as orders")
+            ->leftJoin("order_bank_transfers as obt", "obt.order_id", "=", "orders.id")
+            ->leftJoin('user_addresses as address', 'orders.address_id', '=', 'address.id')
 
-                    ->where("orders.user_id", "=", $user_id);
-                    if (!empty($order_id)){
-                        $sql = $sql->where("orders.id","=",$order_id);
-                    }
+            ->where("orders.user_id", "=", $user_id);
+        if (!empty($order_id)) {
+            $sql = $sql->where("orders.id", "=", $order_id);
+        }
 
-                    if(isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id !=""){
-                        $sql = $sql->where("orders.active_status","=",$request->order_status_id);
-                    }
+        if (isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id != "") {
+            $sql = $sql->where("orders.active_status", "=", $request->order_status_id);
+        }
 
-        $res = $sql->orderBy("orders.id","DESC")->skip($offset)->take($limit)->get();
-        $res = $res->makeHidden(['image','updated_at','deleted_at','current_status']);
+        $res = $sql->orderBy("orders.id", "DESC")->skip($offset)->take($limit)->get();
+        $res = $res->makeHidden(['image', 'updated_at', 'deleted_at', 'current_status']);
 
         //$res = $sql->orderBy("orders.id","DESC")->offset($offset)->limit($limit)->get(); // when num of row is 0 then give error.
         //$res = $sql->orderBy("orders.id","DESC")->paginate(12);
 
         $i = 0;
         foreach ($res as $key => $row) {
-            $res[$key]->address = $row->address." ".$row->landmark." ".$row->area." ".$row->city." ".$row->state."-".$row->pincode." ".$row->country;
+            $res[$key]->address = $row->address . " " . $row->landmark . " " . $row->area . " " . $row->city . " " . $row->state . "-" . $row->pincode . " " . $row->country;
 
             // echo "meri ek tang nakli hain me hoki ka bohot bada khiladi hun";
             $final_sub_total = 0;
@@ -1044,62 +1053,73 @@ class OrderApiController extends Controller
             $final_total = ceil($res[$i]['final_total']);
             $res[$i]['final_total'] = $final_total;
             //$res[$i]['created_at'] = Carbon::createFromFormat('Y-m-d',date('Y-m-d',strtotime($res[$i]['created_at'])))->format('Y-m-d');
-            $res[$i]['created_at'] = date('Y-m-d',strtotime($res[$i]['created_at']));
+            $res[$i]['created_at'] = date('Y-m-d', strtotime($res[$i]['created_at']));
 
             $res[$i]['bank_transfer_message'] = !empty($res[$i]['bank_transfer_message']) ? $res[$i]['bank_transfer_message'] : "";
             $res[$i]['bank_transfer_status'] = !empty($res[$i]['bank_transfer_status']) ? $res[$i]['bank_transfer_status'] : 0;
 
-            $orderStatus = orderStatus::where('order_id',$row['id'])->get();
+            $orderStatus = orderStatus::where('order_id', $row['id'])->get();
             $data = array();
-            foreach ($orderStatus as $status){
+            foreach ($orderStatus as $status) {
                 $subData = array();
-                array_push($subData,$status->status,$status->created_at);
-                array_push($data,$subData);
+                array_push($subData, $status->status, $status->created_at);
+                array_push($data, $subData);
             }
             $res[$i]['status'] = json_encode($data);
 
 
 
-            $items = OrderItem::with('images')->select('oi.*','v.id as variant_id',
-                    'p.name','p.image','p.manufacturer','p.made_in','p.return_status','p.return_days','p.cancelable_status','p.till_status',
-                    'v.measurement',DB::raw('(select short_code from units as u where u.id = v.stock_unit_id) as unit'), 'co.name as country_made_in',
-                's.name as seller_name')
+            $items = OrderItem::with('images')->select(
+                'oi.*',
+                'v.id as variant_id',
+                'p.name',
+                'p.image',
+                'p.manufacturer',
+                'p.made_in',
+                'p.return_status',
+                'p.return_days',
+                'p.cancelable_status',
+                'p.till_status',
+                'v.measurement',
+                DB::raw('(select short_code from units as u where u.id = v.stock_unit_id) as unit'),
+                'co.name as country_made_in',
+                's.name as seller_name'
+            )
                 ->from('order_items as oi')
                 ->leftJoin('product_variants as v', 'oi.product_variant_id', '=', 'v.id')
                 ->leftJoin('products as p', 'v.product_id', '=', 'p.id')
                 ->leftJoin('sellers as s', 'oi.seller_id', '=', 's.id')
                 ->leftJoin("countries as co", "p.made_in", "=", "co.id")
-                ->where('oi.order_id','=',$row['id'])
-                ->orderBy('oi.id','ASC')
+                ->where('oi.order_id', '=', $row['id'])
+                ->orderBy('oi.id', 'ASC')
                 ->get();
 
 
             foreach ($items as $subkey => $item) {
 
-                $items[$subkey]->made_in = $item->country_made_in??"";
-                $items[$subkey]->created_at = Carbon::createFromFormat('Y-m-d',date('Y-m-d',strtotime($item->created_at)))->format('Y-m-d');
+                $items[$subkey]->made_in = $item->country_made_in ?? "";
+                $items[$subkey]->created_at = Carbon::createFromFormat('Y-m-d', date('Y-m-d', strtotime($item->created_at)))->format('Y-m-d');
 
                 $cancelableStatusList = array(OrderStatusList::$received, OrderStatusList::$processed, OrderStatusList::$shipped, OrderStatusList::$outForDelivery);
 
                 /*if( intval($item->active_status) <= intval($item->till_status) && in_array($item->active_status, $cancelableStatusList)){}*/
-                if( intval($row->active_status) <= intval($item->till_status) && in_array($row->active_status, $cancelableStatusList)){
+                if (intval($row->active_status) <= intval($item->till_status) && in_array($row->active_status, $cancelableStatusList)) {
                     $items[$subkey]->cancelable_status = 1;
-                }else{
+                } else {
                     $items[$subkey]->cancelable_status = 0;
                 }
 
-                $created_at = date_create(date('Y-m-d',strtotime($row->created_at)));
+                $created_at = date_create(date('Y-m-d', strtotime($row->created_at)));
                 $current_data = date_create(date('Y-m-d'));
                 $order_days = abs(date_diff($created_at, $current_data)->format('%R%a'));
 
-                if(intval($order_days) <= intval($item->return_days) && intval($row->active_status) == OrderStatusList::$delivered ){
+                if (intval($order_days) <= intval($item->return_days) && intval($row->active_status) == OrderStatusList::$delivered) {
                     $items[$subkey]->return_status = 1;
-                }else{
+                } else {
                     $items[$subkey]->return_status = 0;
                 }
-
             }
-            $items = $items->makeHidden(['image','images','updated_at','deleted_at','status','current_status','country_made_in']);
+            $items = $items->makeHidden(['image', 'images', 'updated_at', 'deleted_at', 'status', 'current_status', 'country_made_in']);
             /*for ($j = 0; $j < $items->count(); $j++) {
 
 
@@ -1235,55 +1255,81 @@ class OrderApiController extends Controller
             /*$orders = $res->toArray();
              $orders =  array_map('array_filter',$orders);
             $orders = array_filter($orders);*/
-            return CommonHelper::responseWithData($res,$total->total);
+            return CommonHelper::responseWithData($res, $total->total);
         } else {
             return CommonHelper::responseError(__('no_orders_found'));
         }
     }
 
-    public function generateOrderInvoice(Request $request){
+    public function generateOrderInvoice(Request $request)
+    {
         $data = CommonHelper::getOrderDetails($request->order_id);
-        if(!$data["order"]){
+        if (!$data["order"]) {
             return CommonHelper::responseError("Order Not found!");
         }
         $invoice = CommonHelper::generateOrderInvoice($data);
         return CommonHelper::responseWithData($invoice);
     }
 
-    public function downloadOrderInvoice(Request $request){
+    public function downloadOrderInvoice(Request $request)
+    {
         return CommonHelper::downloadOrderInvoice($request->order_id);
     }
 
 
-    public function getOrders_new(Request $request){
+    public function getOrders_new(Request $request)
+    {
 
-        $limit = ($request->limit)??12;
-        $offset = ($request->offset)??0;
+        $limit = ($request->limit) ?? 12;
+        $offset = ($request->offset) ?? 0;
         $order_id = $request->order_id;
         $user_id = auth()->user()->id;
 
         //$where = !empty($order_id) ? " o.id = " . $order_id : "";
         //$sql = "select count(o.id) as total from orders o where user_id=" . $user_id . $where;
 
-        $sql = Order::select( DB::raw("count(oi.id) as total"))->leftJoin('order_items as oi', 'oi.order_id', '=', 'orders.id')
+        $sql = Order::select(DB::raw("count(oi.id) as total"))->leftJoin('order_items as oi', 'oi.order_id', '=', 'orders.id')
             ->where("orders.user_id", $user_id);
-        if (!empty($order_id)){
-            $sql = $sql->where("oi.id",$order_id);
+        if (!empty($order_id)) {
+            $sql = $sql->where("oi.id", $order_id);
         }
-        if(isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id !=""){
-            $sql = $sql->where("oi.active_status","=",$request->order_status_id);
+        if (isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id != "") {
+            $sql = $sql->where("oi.active_status", "=", $request->order_status_id);
         }
 
         $total = $sql->first();
 
 
-        $sql = Order::select( "orders.*","orders.id as order_id","obt.message as bank_transfer_message","obt.status as bank_transfer_status",
-            DB::raw('(select name from users as u where u.id = orders.user_id) as user_name') ,
-            'address.address', 'address.landmark', 'address.area', 'address.city', 'address.state','address.pincode', 'address.country',
+        $sql = Order::select(
+            "orders.*",
+            "orders.id as order_id",
+            "obt.message as bank_transfer_message",
+            "obt.status as bank_transfer_status",
+            DB::raw('(select name from users as u where u.id = orders.user_id) as user_name'),
+            'address.address',
+            'address.landmark',
+            'address.area',
+            'address.city',
+            'address.state',
+            'address.pincode',
+            'address.country',
 
-            'oi.*','v.id as variant_id', 'p.name','p.image','p.manufacturer','p.made_in','p.return_status','p.return_days','p.cancelable_status','p.till_status',
-            'v.measurement',DB::raw('(select short_code from units as u where u.id = v.stock_unit_id) as unit'),
-            'os.status as current_status', 'os.id as order_status_id', 'co.name as country_made_in', 's.name as seller_name'
+            'oi.*',
+            'v.id as variant_id',
+            'p.name',
+            'p.image',
+            'p.manufacturer',
+            'p.made_in',
+            'p.return_status',
+            'p.return_days',
+            'p.cancelable_status',
+            'p.till_status',
+            'v.measurement',
+            DB::raw('(select short_code from units as u where u.id = v.stock_unit_id) as unit'),
+            'os.status as current_status',
+            'os.id as order_status_id',
+            'co.name as country_made_in',
+            's.name as seller_name'
         )->from("orders as orders")
 
             ->leftJoin('order_items as oi', 'oi.order_id', '=', 'orders.id')
@@ -1298,37 +1344,37 @@ class OrderApiController extends Controller
             ->leftJoin('user_addresses as address', 'orders.address_id', '=', 'address.id')
 
             ->where("orders.user_id", "=", $user_id);
-        if (!empty($order_id)){
-            $sql = $sql->where("orders.id","=",$order_id);
+        if (!empty($order_id)) {
+            $sql = $sql->where("orders.id", "=", $order_id);
         }
 
-        if(isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id !=""){
-            $sql = $sql->where("oi.active_status","=",$request->order_status_id);
+        if (isset($request->order_status_id) && $request->order_status_id != 0 && $request->order_status_id != "") {
+            $sql = $sql->where("oi.active_status", "=", $request->order_status_id);
         }
 
-        $res = $sql->orderBy("orders.id","DESC")->skip($offset)->take($limit)->get();
-        $res = $res->makeHidden(['image','images','updated_at','deleted_at','current_status','status','country_made_in','order_status_id']);
+        $res = $sql->orderBy("orders.id", "DESC")->skip($offset)->take($limit)->get();
+        $res = $res->makeHidden(['image', 'images', 'updated_at', 'deleted_at', 'current_status', 'status', 'country_made_in', 'order_status_id']);
 
         $i = 0;
         foreach ($res as $key => $row) {
-            $res[$key]->active_status = $row->current_status??"";
-            $res[$key]->address = $row->address." ".$row->landmark." ".$row->area." ".$row->city." ".$row->state."-".$row->pincode." ".$row->country;
-            $res[$key]->active_status = $row->current_status??"";
-            $res[$key]->made_in = $row->country_made_in??"";
-            $res[$key]->created_at = Carbon::createFromFormat('Y-m-d',date('Y-m-d',strtotime($row->created_at)))->format('Y-m-d');
+            $res[$key]->active_status = $row->current_status ?? "";
+            $res[$key]->address = $row->address . " " . $row->landmark . " " . $row->area . " " . $row->city . " " . $row->state . "-" . $row->pincode . " " . $row->country;
+            $res[$key]->active_status = $row->current_status ?? "";
+            $res[$key]->made_in = $row->country_made_in ?? "";
+            $res[$key]->created_at = Carbon::createFromFormat('Y-m-d', date('Y-m-d', strtotime($row->created_at)))->format('Y-m-d');
 
-            if($row->order_status_id == $row->till_status){
+            if ($row->order_status_id == $row->till_status) {
                 $res[$key]->cancelable_status = 1;
-            }else{
+            } else {
                 $res[$key]->cancelable_status = 0;
             }
 
-            $created_at = date_create(date('Y-m-d',strtotime($row->created_at)));
+            $created_at = date_create(date('Y-m-d', strtotime($row->created_at)));
             $current_data = date_create(date('Y-m-d'));
             $order_days = abs(date_diff($created_at, $current_data)->format('%R%a'));
-            if($order_days <= $row->return_days ){
+            if ($order_days <= $row->return_days) {
                 $res[$key]->return_status = 1;
-            }else{
+            } else {
                 $res[$key]->return_status = 0;
             }
 
@@ -1342,7 +1388,7 @@ class OrderApiController extends Controller
             $res[$i]['discount_rupees'] = $discount_in_rupees;
             $final_total = ceil($res[$i]['final_total']);
             $res[$i]['final_total'] = $final_total;
-            $res[$i]['created_at'] = date('Y-m-d',strtotime($res[$i]['created_at']));
+            $res[$i]['created_at'] = date('Y-m-d', strtotime($res[$i]['created_at']));
             $res[$i]['bank_transfer_message'] = !empty($res[$i]['bank_transfer_message']) ? $res[$i]['bank_transfer_message'] : "";
             $res[$i]['bank_transfer_status'] = !empty($res[$i]['bank_transfer_status']) ? $res[$i]['bank_transfer_status'] : "0";
             $res[$i]['image_url'] = CommonHelper::getImage($res[$i]['image']);
@@ -1353,16 +1399,17 @@ class OrderApiController extends Controller
         }
 
         if (!empty($res) && $total->total !== 0) {
-            return CommonHelper::responseWithData($res,$total->total);
+            return CommonHelper::responseWithData($res, $total->total);
         } else {
             return CommonHelper::responseError(__('no_orders_found'));
         }
     }
 
     /*Paytm*/
-    public function generatePaytmChecksum(Request $request){
+    public function generatePaytmChecksum(Request $request)
+    {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'order_id' => 'required',
             'amount' => 'required',
             'website' => 'required',
@@ -1381,7 +1428,7 @@ class OrderApiController extends Controller
         // $paytm_params["INDUSTRY_TYPE_ID"] = $this->input->post('industry_type', true);
         // $paytm_params["CHANNEL_ID"] = $this->input->post('channel_id', true);
 
-        $paytm_params["WEBSITE"] =  $request->get('website','DEFAULT');
+        $paytm_params["WEBSITE"] =  $request->get('website', 'DEFAULT');
         $paytm_params["CALLBACK_URL"] = $credentials['url'] . "theia/paytmCallback?ORDER_ID=" . $paytm_params["ORDER_ID"];
 
         /**
@@ -1390,22 +1437,21 @@ class OrderApiController extends Controller
          */
         $paytm_checksum = Paytm::generateSignature($paytm_params, $paytm_merchant_id);
 
-        Log::info("paytm_checksum : ",[$paytm_checksum]);
+        Log::info("paytm_checksum : ", [$paytm_checksum]);
         $response = array();
         if (!empty($paytm_checksum)) {
             $response['order id'] = $paytm_params["ORDER_ID"];
             $response['data'] = $paytm_params;
             $response['signature'] = $paytm_checksum;
-            return CommonHelper::responseSuccessWithData('Checksum created successfully',$response);
-
+            return CommonHelper::responseSuccessWithData('Checksum created successfully', $response);
         } else {
             return CommonHelper::responseError('Data not found!');
         }
-
     }
 
-    public function generatePaytmTxnToken(Request $request){
-        $validator = Validator::make($request->all(),[
+    public function generatePaytmTxnToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'amount' => 'required',
             'order_id' => 'required'
         ]);
@@ -1479,10 +1525,10 @@ class OrderApiController extends Controller
         }
         curl_close($ch);
         if (isset($error_msg)) {
-            Log::info("curl error message : ",[$error_msg]);
+            Log::info("curl error message : ", [$error_msg]);
         }
 
-        Log::info("paytm_response : ",[$paytm_response]);
+        Log::info("paytm_response : ", [$paytm_response]);
 
         $response = array();
         if (!empty($paytm_response)) {
@@ -1491,8 +1537,7 @@ class OrderApiController extends Controller
                 $response['txn_token'] = $paytm_response['body']['txnToken'];
                 $response['paytm_response'] = $paytm_response;
 
-                return CommonHelper::responseSuccessWithData('Transaction token generated successfully',$response);
-
+                return CommonHelper::responseSuccessWithData('Transaction token generated successfully', $response);
             } else {
                 $response['message'] = $paytm_response['body']['resultInfo']['resultMsg'];
                 $response['txn_token'] = "";
@@ -1509,5 +1554,4 @@ class OrderApiController extends Controller
         }
     }
     /*Paytm*/
-
 }
