@@ -204,7 +204,7 @@ class OrderApiController extends Controller
             $order->save();
 
             $order_id = $order->id;
-            $update_pickup = Order::where('orders_id', $order_id)->first();
+            $update_pickup = Order::where('orders_id', $orders_id)->first();
             $update_pickup->pickup_address = $request->pickup_address;
             $update_pickup->pickup_datetime = $request->pickup_datetime;
             $update_pickup->save();
