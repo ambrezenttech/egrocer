@@ -267,7 +267,7 @@
                                         <template #cell(delivery_time)="row">
                                             {{ new Date(row.item.delivery_time).toLocaleString()  }}
                                         </template>
-                                         <template #cell(pickup_time)="row">
+                                         <template #cell(pickup_datetime)="row">
                                                 {{ new Date(row.item.pickup_datetime).toLocaleString() }}
                                             </template>
                                         <template #cell(actions)="row">
@@ -348,7 +348,7 @@ export default {
                 { key: 'final_total', label: __('ftotal')+'('+ this.$currency +')', sortable: true, class: 'text-center' },
                 { key: 'payment_method', label: __('p_method'), sortable: true, class: 'text-center' },
                 { key: 'delivery_time', label: __('d_time'), sortable: true, class: 'text-center' },
-                 { key: 'pickup_time', label: __('p_time'), sortable: true, class: 'text-center' },
+                 { key: 'pickup_datetime', label: __('p_time'), sortable: true, class: 'text-center' },
                 { key: "actions", label: __('actions') }
             ],
             footClone: false,
@@ -367,7 +367,7 @@ export default {
                 /*{ key: 'tax', label: 'Tax '+ this.$currency +'(%)', sortable: true, class: 'text-center' },*/
                 { key: 'payment_method', label: 'P.Method', sortable: true, class: 'text-center' },
                 { key: 'delivery_time', label: 'D.Time', sortable: true, class: 'text-center' },
-                { key: 'pickup_time', label: 'P.Time', sortable: true, class: 'text-center' },
+                { key: 'pickup_datetime', label: 'P.Time', sortable: true, class: 'text-center' },
                 { key: 'active_status', label: 'A.Status', sortable: true, class: 'text-center' },
                 { key: "actions", label: "Actions" }
             ],
