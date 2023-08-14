@@ -64,6 +64,8 @@ class OrderApiController extends Controller
             $longitude = $user_address->longitude;
             $pincode_id = $user_address->pincode_id;
             $area_id = $user_address->area_id ?? 0;
+            $pickup_address = $request->pickup_address;
+            $pickup_datetime = $request->pickup_datetime;
         } else {
             return CommonHelper::responseError(__('something_is_missing_in_your_address'));
         }
@@ -201,14 +203,11 @@ class OrderApiController extends Controller
             $order->pincode_id = $pincode_id;
             $order->area_id = $area_id;
             $order->address_id = $address_id;
+            $order->pickup_address = $pickup_address;
+            $order->pickup_datetime = $pickup_datetime;
             $order->save();
 
             $order_id = $order->id;
-            $update_pickup = Order::where('orders_id', $orders_id)->first();
-            $update_pickup->pickup_address = $request->pickup_address;
-            $update_pickup->pickup_datetime = $request->pickup_datetime;
-            $update_pickup->save();
-
             if ($order_id == "") {
                 return CommonHelper::responseError(__('order_can_not_place_due_to_some_reason_try_again_after_some_time'));
             }

@@ -1100,6 +1100,8 @@ class CommonHelper
                 $newOrder->address = $order->address;
                 $newOrder->latitude = $order->latitude;
                 $newOrder->longitude = $order->longitude;
+                $newOrder->pickup_address = $order->pickup_address;
+                $newOrder->pickup_datetime = $order->pickup_datetime;
                 $newOrder->delivery_time = $order->delivery_time;
                 $newOrder->status = $order->order_status??0;
                 $newOrder->active_status = $order->active_status;
@@ -2140,4 +2142,3 @@ class CommonHelper
         );
     }
 }
-?>
