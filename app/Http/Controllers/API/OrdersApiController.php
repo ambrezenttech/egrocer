@@ -26,15 +26,22 @@ use Illuminate\Support\Facades\Validator;
 
 class OrdersApiController extends Controller
 {
-    public function getOrders(Request $request){
+    public function getOrders(Request $request)
+    {
 
-        $sellers = Seller::orderBy('id','DESC')->get()->toArray();
+        $sellers = Seller::orderBy('id', 'DESC')->get()->toArray();
 
         $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
         $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
 
-        $orders = Order::select('orders.*','orders.id as order_id','delivery_boys.name as delivery_boy_name','sellers.name as seller_name',
-                            'users.name as user_name','order_items.active_status as order_status')
+        $orders = Order::select(
+            'orders.*',
+            'orders.id as order_id',
+            'delivery_boys.name as delivery_boy_name',
+            'sellers.name as seller_name',
+            'users.name as user_name',
+            'order_items.active_status as order_status'
+        )
             ->leftJoin('order_items', 'order_items.order_id', '=', 'orders.id')
             ->leftJoin('users', 'orders.user_id', '=', 'users.id')
             ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
@@ -42,22 +49,37 @@ class OrdersApiController extends Controller
             ->leftJoin('delivery_boys', 'order_items.delivery_boy_id', '=', 'delivery_boys.id')
             ->leftJoin('sellers', 'order_items.seller_id', '=', 'sellers.id');
 
-        if(isset($request->startDate) && $request->startDate != "" && isset($request->endDate) && $request->endDate != ""){
+        if (isset($request->startDate) && $request->startDate != "" && isset($request->endDate) && $request->endDate != "") {
             $orders = $orders->whereBetween('order_items.created_at', [$startDate, $endDate]);
         }
 
-        if(isset($request->seller) && $request->seller != ""){
+        if (isset($request->seller) && $request->seller != "") {
             $orders = $orders->where('order_items.seller_id', $request->seller);
         }
-        if(isset($request->status) && $request->status != ""){
+        if (isset($request->status) && $request->status != "") {
             $orders = $orders->where('orders.active_status', $request->status);
         }
-        $orders = $orders->groupBy('orders.id')->orderBy('orders.id','DESC')->get();
+        $orders = $orders->groupBy('orders.id')->orderBy('orders.id', 'DESC')->get();
 
-        $order_items = Order::select('order_items.*','orders.mobile','orders.total' ,'orders.delivery_charge','orders.discount','orders.promo_code',
-            'orders.promo_discount','orders.wallet_balance','orders.final_total','orders.payment_method','orders.address','orders.delivery_time',
-            'users.name as user_name'
-            ,'order_items.status as order_status','sellers.name as seller_name')
+        $order_items = Order::select(
+            'order_items.*',
+            'orders.mobile',
+            'orders.total',
+            'orders.delivery_charge',
+            'orders.discount',
+            'orders.promo_code',
+            'orders.promo_discount',
+            'orders.wallet_balance',
+            'orders.final_total',
+            'orders.payment_method',
+            'orders.address',
+            'orders.delivery_time',
+            'orders.pickup_datetime',
+            'orders.pickup_address',
+            'users.name as user_name',
+            'order_items.status as order_status',
+            'sellers.name as seller_name'
+        )
             ->leftJoin('order_items', 'order_items.order_id', '=', 'orders.id')
             ->leftJoin('users', 'orders.user_id', '=', 'users.id')
             ->leftJoin('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
@@ -66,17 +88,17 @@ class OrdersApiController extends Controller
             ->leftJoin('sellers', 'order_items.seller_id', '=', 'sellers.id');
 
 
-        if(isset($request->startDate) && $request->startDate != "" && isset($request->endDate) && $request->endDate != ""){
+        if (isset($request->startDate) && $request->startDate != "" && isset($request->endDate) && $request->endDate != "") {
             $order_items = $order_items->whereBetween('order_items.created_at', [$startDate, $endDate]);
         }
 
-        if(isset($request->seller) && $request->seller != ""){
+        if (isset($request->seller) && $request->seller != "") {
             $order_items = $order_items->where('order_items.seller_id', $request->seller);
         }
-        if(isset($request->status) && $request->status != ""){
+        if (isset($request->status) && $request->status != "") {
             $order_items = $order_items->where('order_items.active_status', $request->status);
         }
-        $order_items = $order_items->orderBy('order_items.id','DESC')->get();
+        $order_items = $order_items->orderBy('order_items.id', 'DESC')->get();
         $data = array(
             "sellers" => $sellers,
             "orders" => $orders,
@@ -85,7 +107,8 @@ class OrdersApiController extends Controller
         return CommonHelper::responseWithData($data);
     }
 
-    public function view($id){
+    public function view($id)
+    {
         /*$order = Order::select('orders.*','orders.id as order_id','orders.created_at as created_at','users.*','users.name as user_name','users.email as user_email'
              ,'users.email as user_email','users.mobile as user_mobile','address.*', 'sellers.*', 'sellers.name as seller_name', 'delivery_boys.name as delivery_boy_name',
             'order_items.id as order_item_id','os.status as active_status', 'cities.id as city_id', 'cities.name as city_name')
@@ -115,66 +138,72 @@ class OrdersApiController extends Controller
             ->orderBy('order_items.id','DESC')
             ->get();*/
         $data = CommonHelper::getOrderDetails($id);
-        if(!$data["order"]){
+        if (!$data["order"]) {
             return CommonHelper::responseError("Order Not found!");
         }
-        $deliveryBoys = DeliveryBoy::select('id','name')->where('city_id',$data["order"]->city_id)->get();
+        $deliveryBoys = DeliveryBoy::select('id', 'name')->where('city_id', $data["order"]->city_id)->get();
         $data["deliveryBoys"] = $deliveryBoys;
         return CommonHelper::responseWithData($data);
     }
 
 
-    public function generateOrderInvoice(Request $request){
+    public function generateOrderInvoice(Request $request)
+    {
         $data = CommonHelper::getOrderDetails($request->order_id);
-        if(!$data["order"]){
+        if (!$data["order"]) {
             return CommonHelper::responseError("Order Not found!");
         }
         $invoice = CommonHelper::generateOrderInvoice($data);
         return CommonHelper::responseWithData($invoice);
     }
-    public function downloadOrderInvoice(Request $request){
+    public function downloadOrderInvoice(Request $request)
+    {
         return CommonHelper::downloadOrderInvoice($request->order_id);
     }
 
-    public function delete(Request $request){
-        if(isset($request->id)){
+    public function delete(Request $request)
+    {
+        if (isset($request->id)) {
             $order = Order::find($request->id);
-            if($order){
+            if ($order) {
                 $order->delete();
                 return CommonHelper::responseSuccess("Order Deleted Successfully!");
-            }else{
+            } else {
                 return CommonHelper::responseSuccess("Order Already Deleted!");
             }
         }
     }
 
-    public function deleteItem(Request $request){
-        if(isset($request->id)){
+    public function deleteItem(Request $request)
+    {
+        if (isset($request->id)) {
             $orderItem = OrderItem::find($request->id);
-            if($orderItem){
+            if ($orderItem) {
                 $orderItem->delete();
                 return CommonHelper::responseSuccess("Order Item Deleted Successfully!");
-            }else{
+            } else {
                 return CommonHelper::responseSuccess("Order Item Already Deleted!");
             }
         }
     }
 
-    public function getWeeklySales(){
+    public function getWeeklySales()
+    {
         $year = date("Y");
         $curdate = date('Y-m-d');
         $orders = Order::select(DB::raw('ROUND(SUM(final_total), 2) AS total_sale'), DB::raw('DATE(created_at) AS order_date'))
-        ->where(DB::raw('YEAR(created_at)'),'=', $year)
-        ->where(DB::raw('DATE(created_at)'),'<=', $curdate);
+            ->where(DB::raw('YEAR(created_at)'), '=', $year)
+            ->where(DB::raw('DATE(created_at)'), '<=', $curdate);
 
         $orders = $orders->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy(DB::raw('DATE(created_at)'),'DESC')
+            ->orderBy(DB::raw('DATE(created_at)'), 'DESC')
             ->limit(7)->get();
         return CommonHelper::responseWithData($orders);
     }
 
-    public function updateStatus(Request $request){
-        $validator = Validator::make($request->all(),[
+    public function updateStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'order_id' => 'required',
             'status_id' => 'required',
         ], [
@@ -185,28 +214,28 @@ class OrdersApiController extends Controller
             return CommonHelper::responseError($validator->errors()->first());
         }
         $order = Order::find($request->order_id);
-        if(empty($order)){
+        if (empty($order)) {
             return CommonHelper::responseError("Order Not found!");
         }
-        $selectedStatus = OrderStatusList::where('id',$request->status_id)->value('status');
-        if($order->active_status == $request->status_id){
-            return CommonHelper::responseError("This Order is already ".$selectedStatus."!");
+        $selectedStatus = OrderStatusList::where('id', $request->status_id)->value('status');
+        if ($order->active_status == $request->status_id) {
+            return CommonHelper::responseError("This Order is already " . $selectedStatus . "!");
         }
 
-        if(auth()->user()->role_id != Role::$roleSuperAdmin ){
-            if($order->active_status > $request->status_id){
-                return CommonHelper::responseError("You can not update this order status to ".$selectedStatus."!");
+        if (auth()->user()->role_id != Role::$roleSuperAdmin) {
+            if ($order->active_status > $request->status_id) {
+                return CommonHelper::responseError("You can not update this order status to " . $selectedStatus . "!");
             }
         }
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
-            if($order->active_status != $request->status_id){
+            if ($order->active_status != $request->status_id) {
 
-                if(isset($request->delivery_boy_id) && $request->delivery_boy_id != "" && $request->delivery_boy_id != 0){
+                if (isset($request->delivery_boy_id) && $request->delivery_boy_id != "" && $request->delivery_boy_id != 0) {
 
                     // Delivery Boy cash collection add and cash_received update with update balance of delivery boy start
-                    if($request->status_id == OrderStatusList::$delivered) {
+                    if ($request->status_id == OrderStatusList::$delivered) {
 
                         $deliveryBoy = DeliveryBoy::find($request->delivery_boy_id);
 
@@ -224,7 +253,7 @@ class OrdersApiController extends Controller
                             $transactionData['payu_txn_id'] = "";
                             $transactionData['amount'] = $order->final_total;
                             $transactionData['status'] = Transaction::$statusSuccess;;
-                            $transactionData['message'] = "Delivery boy ".OrderStatusList::$orderDelivered." this order. Order payment method was ".Transaction::$paymentTypeCod;
+                            $transactionData['message'] = "Delivery boy " . OrderStatusList::$orderDelivered . " this order. Order payment method was " . Transaction::$paymentTypeCod;
                             $transactionData['transaction_date'] = date('Y-m-d H:i:s');
                             $transaction = Transaction::create($transactionData);
 
@@ -250,48 +279,48 @@ class OrdersApiController extends Controller
                 $orderStatus["created_by"] = auth()->user()->id;
                 $orderStatus["user_type"] = auth()->user()->role_id;
                 CommonHelper::setOrderStatus($orderStatus);
-            }else{
+            } else {
                 $status = OrderStatusList::find($request->status_id);
-                return CommonHelper::responseError("Status is already ".$status->status);
+                return CommonHelper::responseError("Status is already " . $status->status);
             }
             \Illuminate\Support\Facades\DB::commit();
         } catch (\Exception $e) {
-            Log::info("Error : ".$e->getMessage());
+            Log::info("Error : " . $e->getMessage());
             \Illuminate\Support\Facades\DB::rollBack();
             throw $e;
             return CommonHelper::responseError("Something Went Wrong!");
         }
 
-        $order = Order::with('items')->where("id",$request->order_id)->first();
+        $order = Order::with('items')->where("id", $request->order_id)->first();
 
-        if(!empty($order)){
+        if (!empty($order)) {
 
             //CommonHelper::sendMailOrderStatus($order);
-            log::info("order",[$order]);
+            log::info("order", [$order]);
 
 
 
             try {
                 //self::sendMailOrderStatus($order);
                 dispatch(new SendEmailJob($order));
-            }catch ( \Exception $e){
-                Log::error("Update order status by delivery boy Send mail error :",[$e->getMessage()] );
+            } catch (\Exception $e) {
+                Log::error("Update order status by delivery boy Send mail error :", [$e->getMessage()]);
             }
 
             log::info("done");
         }
 
         $admins = Admin::get();
-        foreach ($admins as $admin){
-            $admin->notify(new OrderNotification($order->id,$request->status_id));
-
+        foreach ($admins as $admin) {
+            $admin->notify(new OrderNotification($order->id, $request->status_id));
         }
 
         return CommonHelper::responseSuccess("Order Updated Successfully!");
     }
 
-    public function assignDeliveryBoy(Request $request){
-        $validator = Validator::make($request->all(),[
+    public function assignDeliveryBoy(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'order_id' => 'required',
             'delivery_boy_id' => 'required',
         ], [
@@ -304,13 +333,13 @@ class OrdersApiController extends Controller
         }
 
         $deliveryBoy = DeliveryBoy::find($request->delivery_boy_id);
-        if(empty($deliveryBoy)) {
+        if (empty($deliveryBoy)) {
             return CommonHelper::responseSuccess("Delivery Boy Not Found!");
         }
         $order = Order::find($request->order_id);
 
-        if($order) {
-            if($order->delivery_boy_id == $request->delivery_boy_id){
+        if ($order) {
+            if ($order->delivery_boy_id == $request->delivery_boy_id) {
                 return CommonHelper::responseError("This delivery boy already assign!");
             }
 
@@ -320,19 +349,19 @@ class OrdersApiController extends Controller
             $bonus_details['final_total'] = $final_total;
             $bonus_details['bonus_type'] = $bonus_type;
             $bonus_amount = 0;
-            if($bonus_type == DeliveryBoy::$bonusCommission){
+            if ($bonus_type == DeliveryBoy::$bonusCommission) {
 
                 $bonus_percentage = floatval($deliveryBoy->bonus_percentage);
                 $bonus_min_amount = floatval($deliveryBoy->bonus_min_amount);
                 $bonus_max_amount = floatval($deliveryBoy->bonus_max_amount);
 
-                $bonus_amount = floatval( ($final_total *  $bonus_percentage)/100);
+                $bonus_amount = floatval(($final_total *  $bonus_percentage) / 100);
 
-                if($bonus_amount < $bonus_min_amount && $bonus_min_amount != 0){
+                if ($bonus_amount < $bonus_min_amount && $bonus_min_amount != 0) {
                     $bonus_amount = $bonus_min_amount;
                 }
 
-                if($bonus_amount > $bonus_max_amount && $bonus_max_amount != 0){
+                if ($bonus_amount > $bonus_max_amount && $bonus_max_amount != 0) {
                     $bonus_amount = $bonus_max_amount;
                 }
 
@@ -341,7 +370,7 @@ class OrdersApiController extends Controller
                 $bonus_details['bonus_min_amount'] = $bonus_min_amount;
                 $bonus_details['bonus_max_amount'] = $bonus_max_amount;
                 $bonus_details['bonus_amount'] = $bonus_amount;
-            }else{
+            } else {
                 $bonus_details['bonus_type_name'] = DeliveryBoy::$fixed;
             }
             $bonus_details['bonus_amount'] = $bonus_amount;
@@ -354,19 +383,19 @@ class OrdersApiController extends Controller
 
             try {
                 CommonHelper::sendMailOrderStatus($order, true);
-            }catch ( \Exception $e){
-                Log::error("Delivery boy assigned on order Send mail error :",[$e->getMessage()] );
+            } catch (\Exception $e) {
+                Log::error("Delivery boy assigned on order Send mail error :", [$e->getMessage()]);
             }
 
             return CommonHelper::responseSuccess("Delivery boy assigned Successfully for this order!");
-        }else{
+        } else {
             return CommonHelper::responseError("Order Not found!");
         }
-
     }
 
-    public function updateItemsStatus(Request $request){
-        $validator = Validator::make($request->all(),[
+    public function updateItemsStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'ids' => 'required',
             'status_id' => 'required',
         ], [
@@ -376,8 +405,8 @@ class OrdersApiController extends Controller
         if ($validator->fails()) {
             return CommonHelper::responseError($validator->errors()->first());
         }
-        $ids = explode(",",$request->ids);
-        foreach ($ids as $key => $id){
+        $ids = explode(",", $request->ids);
+        foreach ($ids as $key => $id) {
             $orderItem = OrderItem::find($id);
             $orderItem->active_status = $request->status_id;
             $orderItem->save();
@@ -392,5 +421,4 @@ class OrdersApiController extends Controller
         }
         return CommonHelper::responseSuccess("Order Updated Successfully!");
     }
-
 }
