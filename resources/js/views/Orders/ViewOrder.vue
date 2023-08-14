@@ -54,6 +54,10 @@
                                         <td>{{ order.user_mobile | mobileMask }}</td>
                                     </tr>
                                     <tr>
+                                            <th class="th-width">Pick up Address</th>
+                                            <td>{{ order.pickup_address }}</td>
+                                        </tr>
+                                    <tr>
                                         <th class="th-width">Area</th>
                                         <td>{{ order.address }}</td>
                                     </tr>
@@ -172,6 +176,10 @@
                                         <th class="th-width">Delivery Time</th>
                                         <td>{{ order.delivery_time }}</td>
                                     </tr>
+                                    <tr>
+                                            <th class="th-width">Pickup Time</th>
+                                            <td>{{ order.pickup_datetime }}</td>
+                                        </tr>
                                     <tr>
                                         <th class="th-width">Total ({{ $currency }})</th>
                                         <td>{{ order.total }}</td>

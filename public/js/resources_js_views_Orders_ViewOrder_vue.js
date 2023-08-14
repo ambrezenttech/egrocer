@@ -629,6 +629,14 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -1240,6 +1248,14 @@ var render = function () {
                         _vm._v(" "),
                         _c("tr", [
                           _c("th", { staticClass: "th-width" }, [
+                            _vm._v("Pick up Address"),
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(_vm.order.pickup_address))]),
+                        ]),
+                        _vm._v(" "),
+                        _c("tr", [
+                          _c("th", { staticClass: "th-width" }, [
                             _vm._v("Area"),
                           ]),
                           _vm._v(" "),
@@ -1645,6 +1661,14 @@ var render = function () {
                           ]),
                           _vm._v(" "),
                           _c("td", [_vm._v(_vm._s(_vm.order.delivery_time))]),
+                        ]),
+                        _vm._v(" "),
+                        _c("tr", [
+                          _c("th", { staticClass: "th-width" }, [
+                            _vm._v("Pickup Time"),
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(_vm.order.pickup_datetime))]),
                         ]),
                         _vm._v(" "),
                         _c("tr", [
