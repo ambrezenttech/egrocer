@@ -304,7 +304,7 @@ __webpack_require__.r(__webpack_exports__);
         sortable: true,
         "class": 'text-center'
       }, {
-        key: 'pickup_time',
+        key: 'pickup_datetime',
         label: 'P.Time',
         sortable: true,
         "class": 'text-center'
@@ -361,7 +361,7 @@ __webpack_require__.r(__webpack_exports__);
         sortable: true,
         "class": 'text-center'
       }, {
-        key: 'pickup_time',
+        key: 'pickup_datetime',
         label: 'P.Time',
         sortable: true,
         "class": 'text-center'
@@ -1318,7 +1318,7 @@ var render = function () {
                                 },
                               },
                               {
-                                key: "cell(pickup_time)",
+                                key: "cell(pickup_datetime)",
                                 fn: function (row) {
                                   return [
                                     _vm._v(
