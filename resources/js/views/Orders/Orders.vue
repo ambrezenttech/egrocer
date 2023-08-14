@@ -267,6 +267,9 @@
                                         <template #cell(delivery_time)="row">
                                             {{ new Date(row.item.delivery_time).toLocaleString()  }}
                                         </template>
+                                         <template #cell(pickup_time)="row">
+                                                {{ new Date(row.item.pickup_datetime).toLocaleString() }}
+                                            </template>
                                         <template #cell(actions)="row">
                                             <router-link :to="{ name: 'ViewOrder',params: { id: row.item.order_id, record : row.item }}" v-b-tooltip.hover title="View" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></router-link>
                                             <button class="btn btn-danger btn-sm" v-b-tooltip.hover title="Delete" @click="deleteOrderItem(row.index,row.item.id)" v-if="$can('order_delete')">
@@ -363,6 +366,7 @@ export default {
                 /*{ key: 'tax', label: 'Tax '+ this.$currency +'(%)', sortable: true, class: 'text-center' },*/
                 { key: 'payment_method', label: 'P.Method', sortable: true, class: 'text-center' },
                 { key: 'delivery_time', label: 'D.Time', sortable: true, class: 'text-center' },
+                { key: 'pickup_time', label: 'P.Time', sortable: true, class: 'text-center' },
                 { key: 'active_status', label: 'A.Status', sortable: true, class: 'text-center' },
                 { key: "actions", label: "Actions" }
             ],
