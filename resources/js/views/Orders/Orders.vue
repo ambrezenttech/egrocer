@@ -348,6 +348,7 @@ export default {
                 { key: 'final_total', label: __('ftotal')+'('+ this.$currency +')', sortable: true, class: 'text-center' },
                 { key: 'payment_method', label: __('p_method'), sortable: true, class: 'text-center' },
                 { key: 'delivery_time', label: __('d_time'), sortable: true, class: 'text-center' },
+                 { key: 'pickup_time', label: __('p_time'), sortable: true, class: 'text-center' },
                 { key: "actions", label: __('actions') }
             ],
             footClone: false,

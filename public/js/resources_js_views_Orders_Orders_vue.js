@@ -406,6 +406,11 @@ __webpack_require__.r(__webpack_exports__);
         sortable: true,
         "class": 'text-center'
       }, {
+        key: 'pickup_time',
+        label: __('p_time'),
+        sortable: true,
+        "class": 'text-center'
+      }, {
         key: "actions",
         label: __('actions')
       }],
