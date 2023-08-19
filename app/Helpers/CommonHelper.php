@@ -367,15 +367,25 @@ class CommonHelper
 
     public static function getDeliverableCity($latitude, $longitude)
     {
-        $city = City::select('cities.*', DB::raw("6371 * acos(cos(radians(" . $latitude . "))
-                                * cos(radians(sellers.latitude)) * cos(radians(sellers.longitude) - radians(" . $longitude . "))
-                                + sin(radians(" . $latitude . ")) * sin(radians(sellers.latitude))) AS distance"), 'cities.max_deliverable_distance')
-            ->leftJoin("sellers", "sellers.city_id", "cities.id")
-            ->havingRaw("distance < cities.max_deliverable_distance")
+        $city = City::select(
+            'cities.*',
+            DB::raw("6371 * acos(
+            cos(radians($latitude))
+            * cos(radians(sellers.latitude))
+            * cos(radians(sellers.longitude) - radians($longitude))
+            + sin(radians($latitude))
+            * sin(radians(sellers.latitude))
+        ) AS distance"),
+            'cities.max_deliverable_distance'
+        )
+            ->leftJoin('sellers', 'sellers.city_id', 'cities.id')
+            ->havingRaw('distance < cities.max_deliverable_distance')
+            ->orderBy('distance') // You might want to order the results by distance
             ->first();
 
         return $city;
     }
+
 
 
     public static function getSellerIds($latitude, $longitude)
