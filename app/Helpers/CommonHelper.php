@@ -365,10 +365,9 @@ class CommonHelper
         }
     }
 
-    public static function getDeliverableCity()
+    public static function getDeliverableCity($latitude, $longitude)
+
     {
-        $latitude = 28.7040592;
-        $longitude = 77.10249019999999;
         $city = City::select(
             'cities.*',
             DB::raw("6371 * acos(
