@@ -684,7 +684,7 @@ class BasicApiController extends Controller
 
         $seller_ids = SellerCommission::where('category_id', $request->category_id)->pluck('seller_id');
 
-        return CommonHelper::responseWithData($seller_ids);
+        return $seller_ids;
     }
 
     public function getSellers(Request $request)
