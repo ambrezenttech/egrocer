@@ -365,7 +365,7 @@ class CommonHelper
         }
     }
 
-    public static function getDeliverableCity($latitude, $longitude)
+    public static function getDeliverableCity()
     {
         $latitude = 28.7040592;
         $longitude = 77.10249019999999;
