@@ -692,7 +692,7 @@ class BasicApiController extends Controller
             ->where('status', Seller::$statusActive)
             ->havingRaw("distance < cities.max_deliverable_distance")
             ->orderBy('distance', 'asc')
-            ->whereIn('id', $seller_ids)
+            ->whereIn('sellers.id', $seller_ids)
             ->get();
 
         $sellers = $sellers->makeHidden(['national_identity_card_url', 'address_proof_url', 'logo']);
