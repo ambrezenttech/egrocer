@@ -24,6 +24,7 @@ use App\Models\ProductVariant;
 use App\Models\PromoCode;
 use App\Models\Seller;
 use App\Models\Product;
+use App\Models\SellerCommission;
 use App\Models\Setting;
 use App\Models\Slider;
 use App\Models\SocialMedia;
@@ -676,6 +677,14 @@ class BasicApiController extends Controller
         } else {
             return CommonHelper::responseError(__('seller_not_found'));
         }
+    }
+
+    public function getSellersByCategory(Request $request)
+    {
+
+        $seller_ids = SellerCommission::where('category_id', $request->category_id)->pluck('seller_id');
+
+        return CommonHelper::responseWithData($seller_ids);
     }
 
     public function getSellers(Request $request)
