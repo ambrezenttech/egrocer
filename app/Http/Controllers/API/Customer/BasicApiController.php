@@ -687,7 +687,6 @@ class BasicApiController extends Controller
 
         $sellers = Seller::whereIn('sellers.id', $seller_ids)
             ->where('status', Seller::$statusActive)
-            ->orderBy('distance', 'asc')
             ->get();
 
         $sellers = $sellers->makeHidden(['national_identity_card_url', 'address_proof_url', 'logo']);
