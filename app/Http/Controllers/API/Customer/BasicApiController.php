@@ -684,10 +684,23 @@ class BasicApiController extends Controller
 
         $seller_ids = SellerCommission::where('category_id', $request->category_id)->pluck('seller_id');
 
-        $sellers = Seller::whereIn('id', $seller_ids)->get();
 
+        $sellers = Seller::whereIn('id', $seller_ids)->select('sellers.id', 'sellers.name', 'sellers.street', 'sellers.store_name', 'sellers.logo', DB::raw("ROUND(6371 * acos(cos(radians(" . $request->latitude . "))
+                                * cos(radians(sellers.latitude)) * cos(radians(sellers.longitude) - radians(" . $request->longitude . "))
+                                + sin(radians(" . $request->latitude . ")) * sin(radians(sellers.latitude))), 2) AS distance"), 'cities.max_deliverable_distance')
+            ->leftJoin("cities", "sellers.city_id", "cities.id")
+            ->where('status', Seller::$statusActive)
+            ->havingRaw("distance < cities.max_deliverable_distance")
+            ->orderBy('distance', 'asc')
+            ->get();
 
-        return response()->json(compact('seller_ids', 'sellers'));
+        $sellers = $sellers->makeHidden(['national_identity_card_url', 'address_proof_url', 'logo']);
+
+        if (count($sellers) > 0) {
+            return CommonHelper::responseWithData($sellers);
+        } else {
+            return CommonHelper::responseError(__('seller_not_found'));
+        }
     }
 
     public function getSellers(Request $request)
