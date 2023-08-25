@@ -23,6 +23,7 @@ Route::group(['middleware' => ['auth.customer']], function () {
     Route::get('/sellers', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSellers']);
     Route::post('/category/sellers', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSellersByCategory']);
     Route::post('/sectionproducts', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
+    Route::post('/allsections', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getAllSections']);
 
 
     Route::group(['prefix' => 'products'], function () {
