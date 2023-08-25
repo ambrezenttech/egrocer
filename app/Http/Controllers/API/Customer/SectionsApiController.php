@@ -20,26 +20,22 @@ class SectionsApiController extends Controller
 {
     public function getSections(Request $request)
     {
-        /*$request->city_id = 1;
-        $request->latitude = 23.2419997;
-        $request->longitude = 69.6669324;*/
 
-        // $validator = Validator::make($request->all(), [
-        //     'latitude' => 'required',
-        //     'longitude' => 'required',
-        // ],[
-        //     'latitude.required' => 'The latitude field is required.',
-        //     'longitude.required' => 'The longitude field is required.'
-        // ]);
-        // if ($validator->fails()) {
-        //     return CommonHelper::responseError($validator->errors()->first());
-        // }
+
+        $validator = Validator::make($request->all(), [
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ], [
+            'latitude.required' => 'The latitude field is required.',
+            'longitude.required' => 'The longitude field is required.'
+        ]);
+        if ($validator->fails()) {
+            return CommonHelper::responseError($validator->errors()->first());
+        }
 
         $user_id = $request->user('api-customers') ? $request->user('api-customers')->id : '';
 
-        // this is use on post method.
-        /*$limit = $request->get('limit',12);
-         $offset = $request->get('offset',0);*/
+
 
         $limit = ($request->limit) ?? 12;
         $offset = ($request->offset) ?? 0;
@@ -47,87 +43,20 @@ class SectionsApiController extends Controller
         $sort = '';
         $order = '';
 
-        $section_id = ($request->section_id) ?? '';
+        $section_id = $request->section_id;
         $pincode_id = ($request->pincode_id) ?? '';
 
         $where = "";
         $price = 'MIN(price)';
-        if (empty($section_id) && $section_id == "") {
-            if ($sort1 == 'new') {
-                $sort = 'created_at DESC';
-                $price = 'MIN(price)';
-                $price_sort = ' price ASC';
-            } elseif ($sort1 == 'old') {
-                $sort = 'created_at ASC';
-                $price = 'MIN(price)';
-                $price_sort = ' price ASC';
-            } elseif ($sort1 == 'high') {
-                $sort = ' price DESC';
-                $price = 'MAX(price)';
-                $price_sort = ' price DESC';
-            } elseif ($sort1 == 'low') {
-                $sort = ' price ASC';
-                $price = 'MIN(price)';
-                $price_sort = ' price ASC';
-            } else {
-                $sort = ' p.row_order ASC';
-                $price = 'MIN(price)';
-                $price_sort = ' price ASC';
-            }
-        }
 
-        if ($sort == 'row_order') {
-            $order = 'ASC';
-        } else {
-            $order = ($request->order) ?? 'DESC';
-        }
-
-        if (isset($request->search) && $request->search != '') {
-            $search = $request->search;
-            $where .= "AND (p.`id` like '%" . $search . "%' OR p.`name` like '%" . $search . "%' OR s.`name` like '%" . $search . "%' OR p.`category_id` like '%" . $search . "%' OR p.`slug` like '%" . $search . "%' OR p.`description` like '%" . $search . "%') ";
-        }
-
-        if (isset($request->product_id) && !empty($request->product_id) && is_numeric($request->product_id)) {
-            $product_id = ($request->product_id) ?? '';
-            $where .= "AND p.`id` = " . $product_id;
-        }
-
-        if (isset($request->seller_slug) && !empty($request->seller_slug)) {
-            $seller_slug = $request->seller_slug;
-            $where .= "AND s.`slug` =  '$seller_slug' ";
-        }
-
-        if (isset($request->slug) && !empty($request->slug)) {
-            $slug = $request->slug;
-            $where .= "AND p.`slug` =  '$slug' ";
-        }
-
-        if (isset($request->seller_id) && !empty($request->seller_id) && is_numeric($request->seller_id)) {
-            $seller_id = $request->seller_id;
-            $where .= "AND p.`seller_id` = " . $seller_id;
-        }
-
-        if (isset($request->category_id) && !empty($request->category_id) && is_numeric($request->category_id)) {
-            $category_id = $request->category_id;
-            $where .= "AND p.`category_id`=" . $category_id;
-        }
-
-        if (isset($request->pincode_id) && $request->pincode_id != "") {
-            $pincode_id = $request->pincode_id;
-            $where .=  "AND (p.type='included' and FIND_IN_SET('$pincode_id', p.pincodes) OR (p.type='excluded' and NOT FIND_IN_SET('$pincode_id', p.pincodes)) or p.type='all')";
-        }
-        if (isset($request->pincode) && $request->pincode != "") {
-            $pincode = $request->pincode;
-            $where .=  "AND (((p.type='included' and FIND_IN_SET($pincode_id, p.pincodes)) OR (p.type='excluded' and NOT FIND_IN_SET($pincode_id, p.pincodes))) or p.type='all')";
-        }
 
         if (isset($request->section_id) && $request->section_id != "") {
             $section_id = $request->section_id;
-            //$sql = "select * from `sections` where id = " . $section_id;
-            $section = Section::select("*")->where("id", "=", $section_id)->first();
-            //dd($section);
 
-            $cate_ids = $section->category_ids;
+            $section = Section::where("id", $section_id)->first();
+
+
+            $cate_ids = explode(",", $section->category_ids);
             $product_ids = $section->product_ids;
 
             if ($section->product_type == 'all_products') {
@@ -152,9 +81,7 @@ class SectionsApiController extends Controller
                 }
             } elseif ($section->product_type == 'products_on_sale') {
                 if (empty($section->category_ids)) {
-                    /*$sql = "SELECT p.id as product_id
-                        FROM `products` p LEFT JOIN product_variant pv ON p.id=pv.product_id
-                        WHERE p.status = 1 AND pv.discounted_price > 0 AND pv.price > pv.discounted_price ORDER BY p.id DESC";*/
+
                     $sql = Product::select("p.id as product_id")->from("products as p")
                         ->leftJoin('product_variants as pv', 'pv.product_id', '=', 'p.id')
                         ->where("p.status", "=", 1)
@@ -164,11 +91,7 @@ class SectionsApiController extends Controller
                     $sort .= " p.id ";
                     $order = " DESC ";
                 } else {
-                    /*$sql = "SELECT p.id as product_id
-                            FROM `products` p
-                            LEFT JOIN product_variant pv ON p.id=pv.product_id
-                        WHERE p.status = 1 AND p.category_id IN($cate_ids)
-                          AND pv.discounted_price > 0 AND pv.price > pv.discounted_price ORDER BY p.id DESC";*/
+
                     $sql = Product::select("p.id as product_id")->from("products as p")
                         ->leftJoin('product_variants as pv', 'pv.product_id', '=', 'p.id')
                         ->where("p.status", "=", 1)
@@ -181,11 +104,7 @@ class SectionsApiController extends Controller
                 }
             } elseif ($section->product_type == 'most_selling_products') {
                 if (empty($section->category_ids)) {
-                    /*$sql = "SELECT p.id as product_id,oi.product_variant_id, COUNT(oi.product_variant_id) AS total
-                            FROM order_items oi
-                                LEFT JOIN product_variant pv ON oi.product_variant_id = pv.id
-                                LEFT JOIN products p ON pv.product_id = p.id
-                            WHERE oi.product_variant_id != 0 AND p.id != '' GROUP BY pv.id,p.id ORDER BY total DESC ";*/
+
 
                     $sql = OrderItem::select("p.id as product_id", DB::raw("COUNT(oi.product_variant_id) AS total"))
                         ->from("order_items as oi")
@@ -198,12 +117,7 @@ class SectionsApiController extends Controller
                     $sort .= " p.id ";
                     $order = " DESC";
                 } else {
-                    /*$sql = "SELECT p.id as product_id,oi.product_variant_id, COUNT(oi.product_variant_id) AS total
-                            FROM order_items oi
-                                LEFT JOIN product_variant pv ON oi.product_variant_id = pv.id
-                                LEFT JOIN products p ON pv.product_id = p.id
-                            WHERE oi.product_variant_id != 0 AND p.id != '' AND p.category_id IN ($cate_ids)
-                            GROUP BY pv.id,p.id ORDER BY total DESC";*/
+
                     $sql = OrderItem::select(
                         "p.id as product_id",
                         "oi.product_variant_id",
@@ -227,8 +141,7 @@ class SectionsApiController extends Controller
             }
 
             if ($section->product_type != 'custom_products' && !empty($section->product_type)) {
-                /*$db->sql($sql);
-                $product = $db->getResult();*/
+
                 $product = $sql->get();
                 $rows = $tempRow = array();
                 foreach ($product as $row1) {
@@ -238,18 +151,9 @@ class SectionsApiController extends Controller
                 $pro_id = array_column($rows, 'product_id');
                 $product_ids = implode(",", $pro_id);
             }
-
-            /*if ($shipping_type == "standard") {
-                $where .= "AND p.standard_shipping=1 AND p.id IN  ($product_ids)";
-            } else {
-                $where .=  "AND p.standard_shipping=0 AND p.id IN  ($product_ids)";
-            }*/
         }
 
-        /*$sql = "SELECT count(p.id) as total FROM `products` p
-        LEFT JOIN `seller` s ON s.id=p.seller_id WHERE p.is_approved = 1 AND p.status = 1 AND s.status = 1 $where ";
-        $db->sql($sql);
-        $total = $db->getResult();*/
+
 
         $sql = Product::select(DB::raw("count(p.id) as total"))->from("products as p")
             ->leftJoin('sellers as s', 'p.seller_id', '=', 's.id')
@@ -261,55 +165,7 @@ class SectionsApiController extends Controller
         }
         $total = $sql->first();
 
-        /*if (empty($section_id) && $section_id == "") {
-            if ($shipping_type == "standard") {
 
-                $sql = "SELECT p.*,p.type as d_type, s.store_name as seller_name,s.slug as seller_slug,s.status as seller_status,
-                (SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price FROM `products` p
-                    JOIN `seller` s ON s.id=p.seller_id
-                WHERE p.is_approved = 1 AND p.status = 1 AND p.standard_shipping = 1 AND s.status = 1 $where ORDER BY $sort $order LIMIT $offset,$limit ";
-
-                $standard_shipping = 1;
-
-                $sql = Product::select( "p.*","p.type as d_type", "s.store_name as seller_name","s.slug as seller_slug","s.status as seller_status",
-                        DB::raw("(SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price"))
-                    ->from("products as p")
-                    ->leftJoin('sellers as s', 'p.seller_id', '=', 's.id')
-                    ->where("p.is_approved", "=", 1)
-                    ->where("p.status", "=", 1)
-                    ->where("p.standard_shipping", "=", 1)
-                    ->where("s.status", "=", 1);
-            } else {
-                $sql = "SELECT p.*,p.type as d_type, s.store_name as seller_name,s.slug as seller_slug,s.status as seller_status,
-                (SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price
-                FROM `products` p JOIN `seller` s ON s.id=p.seller_id
-                WHERE p.is_approved = 1 AND p.status = 1 AND p.standard_shipping=0 AND s.status = 1 $where ORDER BY $sort $order LIMIT $offset,$limit ";
-
-                $standard_shipping = 0;
-                $sql = Product::select( "p.*","p.type as d_type", "s.store_name as seller_name","s.slug as seller_slug","s.status as seller_status",
-                    DB::raw("(SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price"))
-                    ->from("products as p")
-                    ->leftJoin('sellers as s', 'p.seller_id', '=', 's.id')
-                    ->where("p.is_approved", "=", 1)
-                    ->where("p.status", "=", 1)
-                    ->where("p.standard_shipping", "=", 0)
-                    ->where("s.status", "=", 1);
-            }
-        } else {
-            if ($shipping_type == "standard") {
-                $sql = "SELECT p.*,p.type as d_type, s.store_name as seller_name,s.slug as seller_slug,s.status as seller_status,
-                    (SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price
-                FROM `products` p JOIN `seller` s ON s.id=p.seller_id
-                WHERE p.is_approved = 1 AND p.status = 1 AND p.standard_shipping=1 AND s.status = 1 $where ORDER BY $sort $order LIMIT $offset,$limit ";
-                $standard_shipping = 1;
-            } else {
-                $sql = "SELECT p.*,p.type as d_type, s.store_name as seller_name,s.slug as seller_slug,s.status as seller_status,
-                    (SELECT " . $price . " FROM product_variant pv WHERE pv.product_id=p.id) as price FROM `products` p
-                JOIN `seller` s ON s.id=p.seller_id
-                WHERE p.is_approved = 1 AND p.status = 1 AND p.standard_shipping=0 AND s.status = 1 $where ORDER BY $sort $order LIMIT $offset,$limit ";
-                $standard_shipping = 0;
-            }
-        }*/
 
         $sql = Product::with(['variants'])->with(['variants' => function ($query) {
             $query->select(
@@ -347,12 +203,7 @@ class SectionsApiController extends Controller
         if (!empty($res)) {
             foreach ($res as $key => $row) {
 
-                /*$sql = "SELECT *,
-                    (SELECT short_code FROM unit u WHERE u.id=pv.measurement_unit_id) as measurement_unit_name,
-                    (SELECT short_code FROM unit u WHERE u.id=pv.stock_unit_id) as stock_unit_name
-                FROM product_variant pv WHERE pv.product_id=" . $row['id'] . " ORDER BY `pv`.`serve_for` ASC";
-                $db->sql($sql);
-                $variants = $db->getResult();*/
+
 
                 $variants = $row->variants;
                 if (empty($variants)) {
@@ -364,14 +215,12 @@ class SectionsApiController extends Controller
                 if (!empty($pincode_id) || $pincode_id != "") {
                     $pincodes = ($row->d_type == "all") ? "" : $row->pincodes;
                     if ($pincodes != "") {
-                        /*$sql = "SELECT pincode FROM `pincodes` where id IN($pincodes)";
-                        $db->sql($sql);
-                        $res_pincodes = $db->getResult();*/
+
                         $res_pincodes = Pincode::select("pincode")->whereIn("id", "=", [$pincodes])->get();
                         $pincodes = implode(",", array_column($res_pincodes, "pincode"));
                         $pincodes = explode(",", $pincodes);
                     }
-                    // print_r($pincodes);
+
                     if ($row->d_type == "all") {
                         $row->is_item_deliverable = true;
                     } else if ($row->d_type == "included") {
@@ -404,12 +253,7 @@ class SectionsApiController extends Controller
                 $row->tags = $row->tags ?? '';
                 $row->images = CommonHelper::getImages($row['id'], 0);
 
-                /*$row['other_images'] = json_decode($row['other_images'], 1);
-                $row['other_images'] = (empty($row['other_images'])) ? array() : $row['other_images'];
-                for ($j = 0; $j < count($row['other_images']); $j++) {
-                    $row['other_images'][$j] = DOMAIN_URL . $row['other_images'][$j];
-                }
-                $row['image'] = DOMAIN_URL . $row['image'];*/
+
 
 
                 if ($row->tax_id == 0) {
@@ -418,13 +262,7 @@ class SectionsApiController extends Controller
                 } else {
                     $t_id = $row->tax_id;
 
-                    /*$sql_tax = "SELECT * from taxes where id= $t_id";
-                    $db->sql($sql_tax);
-                    $res_tax1 = $db->getResult();
-                    foreach ($res_tax1 as $tax1) {
-                        $row['tax_title'] = (!empty($tax1['title'])) ? $tax1['title'] : "";
-                        $row['tax_percentage'] =  (!empty($tax1['percentage'])) ? $tax1['percentage'] : "0";
-                    }*/
+
 
                     $tax1 = Tax::select("*")->where("id", "=", $t_id)->first();
                     $row->tax_title = (!empty($tax1['title'])) ? $tax1['title'] : "";
@@ -432,14 +270,7 @@ class SectionsApiController extends Controller
                 }
                 if (!empty($user_id)) {
 
-                    /*$sql = "SELECT id from favorites where product_id = " . $row['id'] . " AND user_id = " . $user_id;
-                    $db->sql($sql);
-                    $favorite = $db->getResult();
-                    if (!empty($favorite)) {
-                        $row['is_favorite'] = true;
-                    } else {
-                        $row['is_favorite'] = false;
-                    }*/
+
                     $favorite = Favorite::select("id")->where('product_id', '=', $row->id)->where('user_id', '=', $user_id)->first();
                     if (!empty($favorite)) {
                         $row->is_favorite = true;
@@ -450,44 +281,11 @@ class SectionsApiController extends Controller
                     $row->is_favorite = false;
                 }
 
-                /*$product[$i] = $row;
-                for ($k = 0; $k < count($variants); $k++) {
 
-                    $variants[$k]['images'] = json_decode($variants[$k]['images'], 1);
-                    $variants[$k]['images'] = (empty($variants[$k]['images'])) ? array() : $variants[$k]['images'];
-                    for ($j = 0; $j < count($variants[$k]['images']); $j++) {
-                        $variants[$k]['images'][$j] = !empty(DOMAIN_URL . $variants[$k]['images'][$j]) ? DOMAIN_URL . $variants[$k]['images'][$j] : "";
-                    }
-                    if ($variants[$k]['stock'] <= 0) {
-                        $variants[$k]['serve_for'] = 'Sold Out';
-                    } else {
-                        $variants[$k]['serve_for'] = $variants[$k]['serve_for'];
-                    }
-
-
-                    if (!empty($user_id)) {
-                        $sql = "SELECT qty as cart_count FROM cart where product_variant_id= " . $variants[$k]['id'] . " AND user_id=" . $user_id;
-                        $db->sql($sql);
-                        $res = $db->getResult();
-                        if (!empty($res)) {
-                            foreach ($res as $row1) {
-                                $variants[$k]['cart_count'] = $row1['cart_count'];
-                            }
-                        } else {
-                            $variants[$k]['cart_count'] = "0";
-                        }
-                    } else {
-                        $variants[$k]['cart_count'] = "0";
-                    }
-                }
-                $product[$i]['variants'] = $variants;
-                $i++;*/
 
                 foreach ($variants as $subkey => $variant) {
                     if (!empty($user_id)) {
-                        /*$sql = "SELECT qty as cart_count FROM cart where product_variant_id= " . $variants[$k]['id'] . " AND user_id=" . $user_id;
-                        $db->sql($sql);
-                        $categories = $db->getResult();*/
+
                         $cart = Cart::select("qty as cart_count")->where('product_variant_id', '=', $variant->id)->where('user_id', '=', $user_id)->first();
                         if (!empty($cart)) {
                             $variants[$subkey]->cart_count = $cart->cart_count;
@@ -501,7 +299,7 @@ class SectionsApiController extends Controller
                     $variants[$subkey]->stock_unit_name = $variants[$subkey]->stock_unit_name ?? '';
                     $variants[$subkey]->images = CommonHelper::getImages($row['id'], $variants[$subkey]->product_variant_id);;
                 }
-                //$product[$i]['variants'] = $variants;
+
                 $row->variants = $variants;
                 $product[$key] = $row;
             }
