@@ -65,7 +65,7 @@ class SectionsApiController extends Controller
                     $sort .= " p.created_at ";
                     $order = " DESC ";
                 } else {
-                    $sql = Product::select("id as product_id")->whereIn("category_id", "=", [$cate_ids])->orderBy("product_id", "DESC");
+                    $sql = Product::select("id as product_id")->whereIn("category_id", $cate_ids)->orderBy("product_id", "DESC");
                     $sort .= " p.created_at ";
                     $order = " DESC ";
                 }
@@ -75,8 +75,8 @@ class SectionsApiController extends Controller
                     $sort .= " p.id ";
                     $order = " DESC ";
                 } else {
-                    $sql = Product::select("id as product_id")->where("status", "=", 1)->whereIn("category_id", "=", [$cate_ids])->orderBy("id", "DESC");
-                    $sort .= "p.date_added";
+                    $sql = Product::select("id as product_id")->where("status", "=", 1)->whereIn("category_id", $cate_ids)->orderBy("id", "DESC");
+                    $sort .= "p.date_added"
                     $order = " DESC ";
                 }
             } elseif ($section->product_type == 'products_on_sale') {
@@ -95,7 +95,7 @@ class SectionsApiController extends Controller
                     $sql = Product::select("p.id as product_id")->from("products as p")
                         ->leftJoin('product_variants as pv', 'pv.product_id', '=', 'p.id')
                         ->where("p.status", "=", 1)
-                        ->whereIn("category_id", "=", [$cate_ids])
+                        ->whereIn("category_id", $cate_ids)
                         ->where("pv.discounted_price", ">", 0)
                         ->where("pv.price", "=", "pv.discounted_price")
                         ->orderBy("p.id", "DESC");
@@ -128,7 +128,7 @@ class SectionsApiController extends Controller
                         ->leftJoin("products as p", "pv.product_id", "=", "p.id")
                         ->where("oi.product_variant_id", "!=", 0)
                         ->where("p.id", "!=", "")
-                        ->whereIn("category_id", "=", [$cate_ids])
+                        ->whereIn("category_id", $cate_ids)
                         ->groupBy(['pv.id', 'p.id'])
                         ->orderBy("total", "DESC");
                     $sort .= " p.id ";
