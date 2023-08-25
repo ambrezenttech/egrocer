@@ -76,7 +76,7 @@ class SectionsApiController extends Controller
                     $order = " DESC ";
                 } else {
                     $sql = Product::select("id as product_id")->where("status", "=", 1)->whereIn("category_id", $cate_ids)->orderBy("id", "DESC");
-                    $sort .= "p.date_added"
+                    $sort .= "p.date_added";
                     $order = " DESC ";
                 }
             } elseif ($section->product_type == 'products_on_sale') {
