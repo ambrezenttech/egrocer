@@ -22,6 +22,7 @@ Route::group(['middleware' => ['auth.customer']], function () {
 
     Route::get('/sellers', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSellers']);
     Route::post('/category/sellers', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSellersByCategory']);
+    Route::post('/sectionproducts', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
 
 
     Route::group(['prefix' => 'products'], function () {
@@ -54,7 +55,7 @@ Route::group(['middleware' => ['auth.customer']], function () {
     Route::get('/sliders', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSliders']);
     Route::get('notifications', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getNotifications']);
     Route::get('/sections', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
-    Route::post('/sectionproducts', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
+
 
 
     /***********************************************************************************************/
