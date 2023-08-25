@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth.customer']], function () {
     Route::get('/sliders', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getSliders']);
     Route::get('notifications', [\App\Http\Controllers\API\Customer\BasicApiController::class, 'getNotifications']);
     Route::get('/sections', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
+    Route::post('/sectionproducts', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
 
 
     /***********************************************************************************************/
