@@ -26,7 +26,7 @@ Route::get('system_languages', [\App\Http\Controllers\API\LanguageApiController:
 
 Route::post('seller/register', [\App\Http\Controllers\API\AdminAuthController::class, 'sellerRegister']);
 Route::get('seller/privacy_policy', [\App\Http\Controllers\SellerController::class, 'getPrivacyPolicy']);
-Route::get('purchase_code/{code}', [\App\Http\Controllers\API\StoreSettingsApiController::class, 'purchaseCode']);
+Route::post('purchase_code', [\App\Http\Controllers\API\StoreSettingsApiController::class, 'purchaseCode']);
 
 /*Route::get('delivery-boy-privacy-policy', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printPrivacyPolicy']);
 Route::get('delivery-boy-terms-conditions', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printTermsConditions']);

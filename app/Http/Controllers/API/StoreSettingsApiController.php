@@ -156,7 +156,7 @@ class StoreSettingsApiController extends Controller
         return CommonHelper::responseWithData($code);
     }
 
-    public function purchaseCode(Request $request)
+    public function purchaseCode(Request $request, $type = 0)
     {
 
         $domain = env('APP_URL');
