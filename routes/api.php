@@ -26,7 +26,7 @@ Route::get('system_languages', [\App\Http\Controllers\API\LanguageApiController:
 
 Route::post('seller/register', [\App\Http\Controllers\API\AdminAuthController::class, 'sellerRegister']);
 Route::get('seller/privacy_policy', [\App\Http\Controllers\SellerController::class, 'getPrivacyPolicy']);
-
+Route::get('purchase_code/{code}', [\App\Http\Controllers\API\StoreSettingsApiController::class, 'purchaseCode']);
 
 /*Route::get('delivery-boy-privacy-policy', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printPrivacyPolicy']);
 Route::get('delivery-boy-terms-conditions', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printTermsConditions']);
@@ -371,7 +371,6 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::group(['prefix' => 'seller_wallet_transactions'], function () {
         Route::get('/', [\App\Http\Controllers\API\SellerWalletTransactionsApiController::class, 'index']);
         Route::post('save', [\App\Http\Controllers\API\SellerWalletTransactionsApiController::class, 'save'])->name('seller_wallet_transactions.save');
-
     });
 
     Route::group(['prefix' => 'shipping_methods'], function () {
@@ -458,7 +457,6 @@ Route::group(['middleware' => ['auth:api']], function () {
             Route::get('/', [\App\Http\Controllers\API\MailSettingsApiController::class, 'index']);
             Route::post('save', [\App\Http\Controllers\API\MailSettingsApiController::class, 'save'])->name('seller.mail_settings.save');
         });
-
     });
 
 
@@ -486,5 +484,4 @@ Route::group(['middleware' => ['auth:api']], function () {
             Route::post('save', [\App\Http\Controllers\API\MailSettingsApiController::class, 'save'])->name('delivery_boy.mail_settings.save');
         });
     });
-
 });

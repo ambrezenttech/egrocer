@@ -160,13 +160,13 @@ class StoreSettingsApiController extends Controller
     {
 
         $domain = env('APP_URL');
-        // $path = 'https://wrteam.in/validator/home/validator?purchase_code='.$code.'&domain_url='.$domain;
-        // $response = file_get_contents($path);
-        // $data = json_decode($response,true);
-        // $valid = false;
-        // if(isset($data['error']) && $data['error']==false){
-        //     $valid = true;
-        // }
+        $path = 'https://wrteam.in/validator/home/validator?purchase_code=' . $code . '&domain_url=' . $domain;
+        $response = file_get_contents($path);
+        $data = json_decode($response, true);
+        $valid = false;
+        if (isset($data['error']) && $data['error'] == false) {
+            $valid = true;
+        }
         $valid = true;
 
         $setting = Setting::where('variable', 'purchase_code')->first() ?? new Setting();
