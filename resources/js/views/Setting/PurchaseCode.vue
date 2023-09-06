@@ -1,6 +1,6 @@
 <template>
     <div>
-        <!-- <div class="page-heading">
+        <div class="page-heading">
             <div class="page-title">
                 <div class="row">
                     <div class="col-12 col-md-6 order-md-1 order-last">
@@ -15,7 +15,7 @@
                         </nav>
                     </div>
                 </div>
-            </div>
+            </div> 
             <section class="section">
                 <form id="api_key_form" method="post" enctype="multipart/form-data" @submit.prevent="saveRecord">
                     <div class="card">
@@ -52,7 +52,7 @@
                     </div>
                 </form>
             </section>
-        </div> -->
+        </div>
     </div>
 </template>
 <script>

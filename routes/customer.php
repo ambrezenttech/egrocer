@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth.customer']], function () {
         Route::get('payment_methods', [\App\Http\Controllers\API\Customer\SettingApiController::class, 'getPaymentMethods']);
     });
 
-    //Languages
+    //Languages 
     Route::get('system_languages', [\App\Http\Controllers\API\LanguageApiController::class, 'getSystemLanguages']);
 
     // city deliverable
