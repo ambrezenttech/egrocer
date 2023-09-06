@@ -7,6 +7,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('purchase_code', [\App\Http\Controllers\API\StoreSettingsApiController::class, 'purchaseCode']);
+
 
 
 Route::group(['prefix' => 'install'], function () {
@@ -26,7 +28,6 @@ Route::get('system_languages', [\App\Http\Controllers\API\LanguageApiController:
 
 Route::post('seller/register', [\App\Http\Controllers\API\AdminAuthController::class, 'sellerRegister']);
 Route::get('seller/privacy_policy', [\App\Http\Controllers\SellerController::class, 'getPrivacyPolicy']);
-Route::post('purchase_code', [\App\Http\Controllers\API\StoreSettingsApiController::class, 'purchaseCode']);
 
 /*Route::get('delivery-boy-privacy-policy', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printPrivacyPolicy']);
 Route::get('delivery-boy-terms-conditions', [\App\Http\Controllers\API\PrivacyPolicyDeliveryBoyApiController::class, 'printTermsConditions']);
