@@ -1,21 +1,22 @@
-import axios from 'axios';
+import axios from "axios";
 
 class Auth {
-    constructor () {
-        this.token = window.localStorage.getItem('token');
-        let userData = window.localStorage.getItem('user');
+    constructor() {
+        this.token = window.localStorage.getItem("token");
+        let userData = window.localStorage.getItem("user");
         this.user = userData ? JSON.parse(userData) : null;
 
         if (this.token) {
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.token;
+            axios.defaults.headers.common["Authorization"] =
+                "Bearer " + this.token;
             //this.validate();
         }
     }
 
-    login (token, user) {
-        window.localStorage.setItem('token', token);
-        window.localStorage.setItem('user', JSON.stringify(user));
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    login(token, user) {
+        window.localStorage.setItem("token", token);
+        window.localStorage.setItem("user", JSON.stringify(user));
+        axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
         this.token = token;
         this.user = user;
@@ -25,37 +26,42 @@ class Auth {
         this.validate();
     }
 
-    check () {
-        return !! this.token;
+    check() {
+        return !!this.token;
     }
 
-    logout () {
+    logout() {
         let role_id = this.user.role_id;
         console.log("Logout");
         //return;
         window.localStorage.clear();
-        window.localStorage.removeItem('token');
-        window.localStorage.removeItem('user');
-        window.localStorage.removeItem('loginCheck');
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("user");
+        window.localStorage.removeItem("loginCheck");
 
         if (role_id === 3) {
-            window.location.replace('/seller/login');
+            window.location.replace("/seller/login");
         } else if (role_id === 4) {
-            window.location.replace('/delivery_boy/login');
+            window.location.replace("/delivery_boy/login");
         } else {
-            window.location.replace('login');
+            window.location.replace("login");
         }
         this.user = null;
     }
 
-    validate(currentRoute=null){
+    validate(currentRoute = null) {
         var currentPathName = window.location.pathname;
-        if(currentRoute) {
+        if (currentRoute) {
             currentPathName = currentRoute;
         }
-        var ignoreRoutes = ["/purchase_code","/login","/seller/login","/delivery_boy/login"];
-        if(!purchase_code && !ignoreRoutes.includes(currentPathName)){
-            window.location.href = '/purchase_code';
+        var ignoreRoutes = [
+            "/purchase_code",
+            "/login",
+            "/seller/login",
+            "/delivery_boy/login",
+        ];
+        if (!purchase_code && !ignoreRoutes.includes(currentPathName)) {
+            //window.location.href = '/purchase_code';
             /*axios.get('api/validate').then((res) => {
                 console.log("validate res : ",res);
                 if(res.data && res.data.status===1){
