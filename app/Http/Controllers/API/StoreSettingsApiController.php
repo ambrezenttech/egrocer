@@ -156,10 +156,11 @@ class StoreSettingsApiController extends Controller
         return CommonHelper::responseWithData($code);
     }
 
-    public function purchaseCode($code, $type = 0)
+    public function purchaseCode(Request $request)
     {
 
         $domain = env('APP_URL');
+        $code = $request->code;
         $path = 'https://wrteam.in/validator/home/validator?purchase_code=' . $code . '&domain_url=' . $domain;
         $response = file_get_contents($path);
         $data = json_decode($response, true);
