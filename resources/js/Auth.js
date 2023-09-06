@@ -50,26 +50,26 @@ class Auth {
     }
 
     validate(currentRoute = null) {
-        var currentPathName = window.location.pathname;
-        if (currentRoute) {
-            currentPathName = currentRoute;
-        }
-        var ignoreRoutes = [
-            "/purchase_code",
-            "/login",
-            "/seller/login",
-            "/delivery_boy/login",
-        ];
-        if (!purchase_code && !ignoreRoutes.includes(currentPathName)) {
-            //window.location.href = '/purchase_code';
-            /*axios.get('api/validate').then((res) => {
-                console.log("validate res : ",res);
-                if(res.data && res.data.status===1){
-                    window.location.href = '/purchase_code';
-                    console.log("Redirect --> purchase_code");
-                }
-            });*/
-        }
+        // var currentPathName = window.location.pathname;
+        // if (currentRoute) {
+        //     currentPathName = currentRoute;
+        // }
+        // var ignoreRoutes = [
+        //     "/purchase_code",
+        //     "/login",
+        //     "/seller/login",
+        //     "/delivery_boy/login",
+        // ];
+        // if (!purchase_code && !ignoreRoutes.includes(currentPathName)) {
+        //     window.location.href = '/purchase_code';
+        //     axios.get('api/validate').then((res) => {
+        //         console.log("validate res : ",res);
+        //         if(res.data && res.data.status===1){
+        //             window.location.href = '/purchase_code';
+        //             console.log("Redirect --> purchase_code");
+        //         }
+        //     });
+        // }
     }
 }
 export default new Auth();
