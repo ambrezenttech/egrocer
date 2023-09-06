@@ -15,7 +15,7 @@
                         </nav>
                     </div>
                 </div>
-            </div> 
+            </div>
             <section class="section">
                 <form id="api_key_form" method="post" enctype="multipart/form-data" @submit.prevent="saveRecord">
                     <div class="card">
