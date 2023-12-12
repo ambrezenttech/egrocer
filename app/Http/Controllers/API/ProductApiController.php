@@ -105,9 +105,8 @@ class ProductApiController extends Controller
     }
 
     public function save(Request $request){
-
         // dd($request->loose_custom_title);
-
+        
         // \Log::info('Save : ',[$request->all()]);
         $validator = Validator::make($request->all(),[
             'name' => [ 'required',
@@ -116,7 +115,6 @@ class ProductApiController extends Controller
                         })
                 ],
             'slug' => 'required|unique:products,slug',
-            'seller_id' => 'required',
             'description' => 'required',
             'image' => 'required|mimes:jpeg,jpg,png',
             'type' => 'required',
@@ -127,9 +125,9 @@ class ProductApiController extends Controller
 
             'loose_measurement.*' =>  ['required_if:type,loose','numeric'],
             'loose_price.*' =>  ['required_if:type,loose','numeric'],
-
-            'category_id' => 'required',
-
+            
+            //'category_id' => 'required',
+            
         ],[
             'name.unique' => 'The product name has already been taken.',
             'seller_id.required' => 'The seller name field is required.',
@@ -140,6 +138,7 @@ class ProductApiController extends Controller
         if ($validator->fails()) {
             return CommonHelper::responseError($validator->errors()->first());
         }
+        
 
         $variations = array();
         if($request->type == "packet") {
@@ -184,7 +183,7 @@ class ProductApiController extends Controller
             $product->row_order = $row_order;
             $product->tax_id = $request->tax_id ?? "";
             $product->brand_id = $request->brand_id ?? "";
-            $product->seller_id = $request->seller_id;
+            // $product->seller_id = $request->seller_id;
             $product->tags = $request->tags ?? "";
             $product->type = $request->type;
             $product->category_id = $request->category_id;
@@ -203,6 +202,7 @@ class ProductApiController extends Controller
             $product->is_approved = $request->is_approved;
             $product->status = 1;
             $product->brand_id = $request->brand_id;
+            $product->is_common = 1;
             $image = '';
             if($request->hasFile('image')){
                 $file = $request->file('image');
@@ -283,6 +283,7 @@ class ProductApiController extends Controller
     }
 
     public function update(Request $request){
+        dd($request->all());
         $validator = Validator::make($request->all(),[
             'name' =>[ 'required',
                 Rule::unique('products')->where(function($query) use ($request) {
@@ -404,7 +405,7 @@ class ProductApiController extends Controller
             $product->row_order = $row_order;
             $product->tax_id = $request->tax_id;
             $product->brand_id = $request->brand_id;
-            $product->seller_id = $request->seller_id;
+            // $product->seller_id = $request->seller_id;
             $product->tags = $request->tags ?? "";
             $product->type = $request->type;
             $product->category_id = $request->category_id;
@@ -422,6 +423,7 @@ class ProductApiController extends Controller
             $product->is_unlimited_stock = $request->is_unlimited_stock;
             $product->is_approved = $request->is_approved;
             $product->brand_id = $request->brand_id;
+            $product->is_common = 1;           
 
             if($request->hasFile('image')){
                 $file = $request->file('image');

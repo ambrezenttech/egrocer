@@ -55,21 +55,6 @@
                                         <i class="text-danger">*</i>
                                         <input type="text" class="form-control" :placeholder="__('enter_product_slug')" v-model="slug">
                                     </div>
-                                    <template v-if="this.$roleSeller == login_user.role.name">
-                                        <input type="hidden" v-model="seller_id">
-                                    </template>
-                                    <template v-else>
-                                        <div class="col-md-6">
-                                            <label class="control-label" for="seller_id">{{ __('seller') }}</label>
-                                            <i class="text-danger">*</i>
-                                            <select id="seller_id" name="seller_id" class="form-control form-select"
-                                                    v-model="seller_id" required @change="getSellerCategories">
-                                                <option value="0">{{ __('select_seller') }}</option>
-                                                <option v-for="seller in sellers" :value="seller.id">{{ seller.name }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </template>
                                     <div class="col-md-6">
                                         <label for="tax_id" class="control-label">{{ __('tax') }}</label>
                                         <select id="tax_id" name="tax_id" class="form-control form-select"
@@ -800,7 +785,7 @@ export default {
     },
     created: function () {
         this.id = this.$route.params.id;
-        // this.getCategories();
+        this.getCategories();
         this.getSellers();
         this.getTaxes();
         this.getUnits();
