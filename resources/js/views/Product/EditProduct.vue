@@ -48,16 +48,16 @@
                                     <div class="col-md-6">
                                         <label>{{ __('product_name') }}</label>
                                         <i class="text-danger">*</i>
-                                        <input type="text" class="form-control" :placeholder="__('enter_product_name')" v-model="name" v-on:keyup="createSlug">
+                                        <input type="text" :disabled="isCommon" class="form-control" :placeholder="__('enter_product_name')" v-model="name" v-on:keyup="createSlug">
                                     </div>
                                     <div class="col-md-6">
                                         <label>{{ __('slug') }}</label>
                                         <i class="text-danger">*</i>
-                                        <input type="text" class="form-control" :placeholder="__('enter_product_slug')" v-model="slug">
+                                        <input type="text" :disabled="isCommon" class="form-control" :placeholder="__('enter_product_slug')" v-model="slug">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="tax_id" class="control-label">{{ __('tax') }}</label>
-                                        <select id="tax_id" name="tax_id" class="form-control form-select"
+                                        <select id="tax_id" :disabled="isCommon" name="tax_id" class="form-control form-select"
                                                 v-model="tax_id">
                                             <option value="0">Select Tax</option>
                                             <option v-for="tax in taxes" :value="tax.id">{{ tax.title }}</option>
@@ -72,6 +72,7 @@
                                                 tag-variant="primary"
                                                 separator=" ,;"
                                                 :placeholder="__('enter_product_tag')"
+                                                :disabled="isCommon"
                                                 no-add-on-enter
                                             ></b-form-tags>
 
@@ -84,6 +85,7 @@
                                                          :options="brands"
                                                          :placeholder="__('select_and_search_brands')"
                                                          label="name"
+                                                         :disabled="isCommon"
                                                          track-by="name" required>
                                                 <template slot="singleLabel" slot-scope="props">
                                                     <span class="option__desc">
@@ -108,6 +110,7 @@
                                                 :placeholder="__('enter_product_description')"
                                                 v-model="description"
                                                 :api-key="this.$editorKey"
+                                                :disabled="isCommon"
                                                 :init="{
                                                     height:400,
                                                     plugins: this.$editorPlugins ,
@@ -120,10 +123,10 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>{{ __('main_image')}} <i class="text-danger">*</i></label>
-                                            <input type="file" name="image" accept="image/*" ref="file_image" v-on:change="fileImage" class="file-input">
+                                            <input :disabled="isCommon" type="file" name="image" accept="image/*" ref="file_image" v-on:change="fileImage" class="file-input">
 
-                                            <div class="file-input-div bg-gray-100" @click="$refs.file_image.click()" @drop="dropFile" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
-                                                <template v-if="main_image_name == ''">
+                                            <div :disabled="isCommon" class="file-input-div bg-gray-100" @click="$refs.file_image.click()" @drop="dropFile" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
+                                                <template v-if="main_image_name == ''" :disabled="isCommon">
                                                     <label><i class="fa fa-cloud-upload fa-2x"></i></label>
                                                     <label>{{ __('drop_files_here_or_click_to_upload') }}</label>
                                                 </template>
@@ -196,6 +199,7 @@
                                             <label>{{ __('type') }} <i class="text-danger">*</i></label><br>
                                             <b-form-radio-group
                                                 v-model="type"
+                                                :disabled="isCommon"
                                                 :options="[
                                                         { text: ' Packet', 'value': 'packet' },
                                                         { text: ' Loose', 'value': 'loose' },
@@ -207,6 +211,7 @@
                                             <label class="control-label">{{ __('stock_limit') }} <i class="text-danger">*</i></label><br>
                                             <b-form-radio-group
                                                 v-model="is_unlimited_stock"
+                                                :disabled="isCommon"
                                                 :options="[
                                                             { text: ' Limited', 'value': 0 },
                                                             { text: ' Unlimited', 'value': 1 },
@@ -224,7 +229,7 @@
                                             <div class="form-group">
                                                 <label>{{ __('measurement') }}</label>
                                                 <i class="text-danger">*</i>
-                                                <input type="number" step="any" min="0" class="form-control" placeholder="0"
+                                                <input type="number" :disabled="isCommon" step="any" min="0" class="form-control" placeholder="0"
                                                        v-model="input.packet_measurement">
                                             </div>
                                         </div>
@@ -247,14 +252,14 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{__('discounted_price')}} ( {{ $currency }} )</label>
-                                                <input type="number" step="any" min="0" class="form-control" placeholder="0.00"
+                                                <input  type="number" step="any" min="0" class="form-control" placeholder="0.00"
                                                        v-model="input.discounted_price">
                                             </div>
                                         </div>
                                         <div class="col-md-4" v-if="is_unlimited_stock!=1">
                                             <div class="form-group">
                                                 <label>{{ __('stock') }}</label> <i class="text-danger">*</i>
-                                                <input type="number" step="any" min="0" class="form-control" placeholder="0"
+                                                <input :disabled="isCommon" type="number" step="any" min="0" class="form-control" placeholder="0"
                                                        name="packate_stock[]" v-model="input.packet_stock">
                                             </div>
                                         </div>
@@ -262,7 +267,7 @@
                                             <div class="form-group">
                                                 <label>{{ __('unit') }}</label>
 <!--                                                <select class="form-control form-select" @change="changeUnits()" v-model="input.packet_stock_unit_id = inputs[0].packet_stock_unit_id">-->
-                                                <select class="form-control form-select" @change="changeUnits()" v-model="input.packet_stock_unit_id">
+                                                <select :disabled="isCommon" class="form-control form-select" @change="changeUnits()" v-model="input.packet_stock_unit_id">
                                                     <option value="">{{ __('select_unit') }}</option>
 
                                                     <option v-for="(unit,key) in units" :value="unit.id">{{ unit.short_code }}</option>
@@ -272,7 +277,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{ __('status') }}</label>
-                                                <select class="form-control form-select" v-model="input.packet_status">
+                                                <select :disabled="isCommon" class="form-control form-select" v-model="input.packet_status">
                                                     <option value="">{{ __('select_status') }}</option>
                                                     <option value="1">{{ __('available') }}</option>
                                                     <option value="0">{{ __('sold_out') }}</option>
@@ -282,7 +287,7 @@
                                         <div class="col-md-12 ">
                                             <div class="form-group">
                                                 <label>{{ __('variant_images') }}</label>
-                                                <input type="file" accept="image/*" :ref="'packet_variant_images_'+k " multiple class="file-input"
+                                                <input :disabled="isCommon" type="file" accept="image/*" :ref="'packet_variant_images_'+k " multiple class="file-input"
                                                        v-on:change="variantImagesChanges(k)">
 <!--                                                @drop="dropFileStoreLogo"               -->
                                                 <div class="file-input-div bg-gray-100" @click="$refs['packet_variant_images_' + k][0].click()" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
@@ -451,7 +456,7 @@
                                             <label>{{ __('category') }} <i class="text-danger">*</i></label>
 
                                             <select class="form-control form-select" v-model="category_id"
-                                                    v-html="categoryOptions">
+                                                    v-html="categoryOptions" :disabled="isCommon">
                                             </select>
 
 <!--                                            <select class="form-control form-select" v-model="category_id">
@@ -471,7 +476,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>{{ __('product_type') }} </label>
-                                            <select class="form-control form-select" v-model="product_type">
+                                            <select class="form-control form-select" v-model="product_type" :disabled="isCommon">
                                                 <option value="">{{ __('select_type') }}</option>
                                                 <option value="1">Veg</option>
                                                 <option value="2">Non Veg</option>
@@ -481,7 +486,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>{{ __('manufacturer') }} </label>
-                                            <input type="text" class="form-control" v-model="manufacturer" :placeholder="__('enter_manufacturer')">
+                                            <input type="text" :disabled="isCommon" class="form-control" v-model="manufacturer" :placeholder="__('enter_manufacturer')">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -491,7 +496,7 @@
                                                          :options="countries"
                                                          :placeholder="__('select_and_search_country_name')"
                                                          label="name"
-                                                         track-by="name" required>
+                                                         track-by="name" required :disabled="isCommon">
                                                 <template slot="singleLabel" slot-scope="props">
                                                             <span class="option__desc">
                                                                 <span class="option__title">{{ props.option.name }}</span>
@@ -600,6 +605,7 @@
                                                         buttons
                                                         button-variant="outline-primary"
                                                         required
+                                                        :disabled="isCommon"
                                                     ></b-form-radio-group>
                                                 </div>
                                             </div>
@@ -624,6 +630,7 @@
                                                                     ]"
                                                         buttons
                                                         button-variant="outline-primary"
+                                                        :disabled="isCommon"
                                                     ></b-form-radio-group>
                                                 </div>
                                             </div>
@@ -652,6 +659,7 @@
                                                                 { text: ' Yes', 'value': 1 },
                                                             ]"
                                                         buttons
+                                                        :disabled="isCommon"
                                                         button-variant="outline-primary"
                                                     ></b-form-radio-group>
                                                 </div>
@@ -666,6 +674,7 @@
                                                                 { text: ' Yes', 'value': 1 },
                                                             ]"
                                                         buttons
+                                                        :disabled="isCommon"
                                                         button-variant="outline-primary"
                                                     ></b-form-radio-group>
                                                 </div>
@@ -673,7 +682,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>{{ __('total_allowed_quantity') }}  </label>
-                                                    <input type="number" min="0" class="form-control" v-model="max_allowed_quantity">
+                                                    <input type="number" :disabled="isCommon" min="0" class="form-control" v-model="max_allowed_quantity">
                                                     <span class="text text-primary">{{ __('keep_blank_if_no_such_limit') }}</span>
                                                 </div>
                                             </div>
@@ -681,7 +690,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <template v-if="this.$roleSeller == login_user.role.name">
-                                            <input type="hidden" v-model="is_approved" value="0">
+                                            <input type="hidden" v-model="is_approved" value="0" :disabled="isCommon">
                                         </template>
                                         <template v-else>
                                             <div class="form-group">
@@ -689,11 +698,11 @@
                                                 <div id="status" class="btn-group">
                                                     <label class="btn btn-primary" data-toggle-class="btn-primary"
                                                            data-toggle-passive-class="btn-default">
-                                                        <input type="radio" v-model="is_approved" value="1"> Approved
+                                                        <input type="radio" v-model="is_approved" :disabled="isCommon" value="1"> Approved
                                                     </label>
                                                     <label class="btn btn-danger" data-toggle-class="btn-danger"
                                                            data-toggle-passive-class="btn-default">
-                                                        <input type="radio" v-model="is_approved" value="2">
+                                                        <input type="radio" v-model="is_approved" :disabled="isCommon" value="2">
                                                         Not-Approved
                                                     </label>
                                                 </div>
@@ -729,6 +738,7 @@ export default {
         return {
             login_user: Auth.user,
             isLoading:false,
+            isCommon:false,
 
             name: '',
             slug: '',
@@ -1020,6 +1030,8 @@ export default {
                     if (data.status === 1) {
                         //console.log("data=>",response.data);
                         this.record = data.data
+                        this.isCommon = this.record.is_common==1?true:false;
+                        console.log(this.record.is_common)
 
                         //Fill Data
                         this.name = this.record.name;
@@ -1222,6 +1234,7 @@ export default {
             formData.append('max_allowed_quantity', this.max_allowed_quantity);
 
             formData.append('is_approved', this.is_approved);
+            formData.append('is_common', this.isCommon?1:0);
             formData.append('tax_included_in_price', this.tax_included_in_price);
             formData.append('image', this.image);
             // Other Images

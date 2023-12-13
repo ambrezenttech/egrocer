@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Auth;
 
 class ProductApiController extends Controller
 {
@@ -126,7 +126,7 @@ class ProductApiController extends Controller
             'loose_measurement.*' =>  ['required_if:type,loose','numeric'],
             'loose_price.*' =>  ['required_if:type,loose','numeric'],
             
-            //'category_id' => 'required',
+            'category_id' => 'required',
             
         ],[
             'name.unique' => 'The product name has already been taken.',
@@ -138,7 +138,6 @@ class ProductApiController extends Controller
         if ($validator->fails()) {
             return CommonHelper::responseError($validator->errors()->first());
         }
-        
 
         $variations = array();
         if($request->type == "packet") {
@@ -202,7 +201,19 @@ class ProductApiController extends Controller
             $product->is_approved = $request->is_approved;
             $product->status = 1;
             $product->brand_id = $request->brand_id;
-            $product->is_common = 1;
+
+            $authuser = Auth::user();
+
+            if($authuser->role_id == 1){
+                $product->is_common = 1; 
+                $product->seller_id = NULL;
+            }
+            else if($authuser->role_id == 3){
+                $seller = Seller::where('admin_id',$authuser->id)->first();
+                $product->is_common = 0; 
+                $product->seller_id = $seller->id;
+            } 
+
             $image = '';
             if($request->hasFile('image')){
                 $file = $request->file('image');
@@ -283,7 +294,6 @@ class ProductApiController extends Controller
     }
 
     public function update(Request $request){
-        dd($request->all());
         $validator = Validator::make($request->all(),[
             'name' =>[ 'required',
                 Rule::unique('products')->where(function($query) use ($request) {
@@ -405,7 +415,6 @@ class ProductApiController extends Controller
             $product->row_order = $row_order;
             $product->tax_id = $request->tax_id;
             $product->brand_id = $request->brand_id;
-            // $product->seller_id = $request->seller_id;
             $product->tags = $request->tags ?? "";
             $product->type = $request->type;
             $product->category_id = $request->category_id;
@@ -423,8 +432,18 @@ class ProductApiController extends Controller
             $product->is_unlimited_stock = $request->is_unlimited_stock;
             $product->is_approved = $request->is_approved;
             $product->brand_id = $request->brand_id;
-            $product->is_common = 1;           
 
+
+            if($request->is_common == 1){
+                $product->is_common = 1; 
+                $product->seller_id = NULL;
+            }
+            else{
+                $authuser = Auth::user();
+                $product->is_common = 0; 
+                $product->seller_id = $authuser->id;
+            } 
+            
             if($request->hasFile('image')){
                 $file = $request->file('image');
                 $fileName = time().'_'.rand(1111,99999).'.'.$file->getClientOriginalExtension();
@@ -434,6 +453,7 @@ class ProductApiController extends Controller
             if($request->hasFile('other_images')){
                 CommonHelper::uploadProductImages($request->file('other_images'),$request->id);
             }
+
             $product->save();
 
             //Variance
