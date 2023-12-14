@@ -245,14 +245,14 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{ __('price') }} ( {{ $currency }} )</label> <i class="text-danger">*</i>
-                                                <input type="number" step="any" min="0" class="form-control" placeholder="0.00"
+                                                <input :disabled="login_user.role_id==1?true:false" type="number" step="any" min="0" class="form-control" placeholder="0.00"
                                                        v-model="input.packet_price">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{__('discounted_price')}} ( {{ $currency }} )</label>
-                                                <input  type="number" step="any" min="0" class="form-control" placeholder="0.00"
+                                                <input :disabled="login_user.role_id==1?true:false" type="number" step="any" min="0" class="form-control" placeholder="0.00"
                                                        v-model="input.discounted_price">
                                             </div>
                                         </div>

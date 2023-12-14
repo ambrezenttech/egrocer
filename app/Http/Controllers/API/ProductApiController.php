@@ -110,8 +110,8 @@ class ProductApiController extends Controller
         // \Log::info('Save : ',[$request->all()]);
         $validator = Validator::make($request->all(),[
             'name' => [ 'required',
-                        Rule::unique('products')->where(function($query) use ($request) {
-                            $query->where('seller_id', $request->seller_id);
+            Rule::unique('products')->where(function($query) use ($request) {
+                $query->where('seller_id', $request->seller_id);
                         })
                 ],
             'slug' => 'required|unique:products,slug',
@@ -119,10 +119,10 @@ class ProductApiController extends Controller
             'image' => 'required|mimes:jpeg,jpg,png',
             'type' => 'required',
             'is_unlimited_stock' => 'required',
-
+            
             'packet_measurement.*' =>  ['required_if:type,packet','numeric'],
             'packet_price.*' =>  ['required_if:type,packet','numeric'],
-
+            
             'loose_measurement.*' =>  ['required_if:type,loose','numeric'],
             'loose_price.*' =>  ['required_if:type,loose','numeric'],
             
@@ -138,7 +138,8 @@ class ProductApiController extends Controller
         if ($validator->fails()) {
             return CommonHelper::responseError($validator->errors()->first());
         }
-
+        dd($request->all());
+        
         $variations = array();
         if($request->type == "packet") {
             foreach ($request->packet_measurement as $index => $item) {
