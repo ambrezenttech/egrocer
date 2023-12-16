@@ -23,7 +23,7 @@
 
                         <div class="card-header">
                             <h4>{{ __('products') }}</h4>
-                            <span class="pull-right">
+                            <span class="pull-right" v-if="login_user.role_id == 1">
                                 <template v-if="$roleSeller == login_user.role.name">
                                      <router-link to="/seller/manage_products/create" class="btn btn-primary" v-b-tooltip.hover title="Add Product">{{ __('add_product') }}</router-link>
                                 </template>
@@ -35,7 +35,7 @@
 
                         <div class="card-body">
                             <div class="row">
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-3" v-if="login_user.role_id == 1">
                                     <b-dropdown size="sm" dropright :text=" __('actions')" split-variant="outline-primary"
                                                 variant="primary" class="m-2" :disabled="selectedItems.length === 0">
                                         <b-dropdown-item href="javascript:void(0);" @click="multipleDelete"><span
@@ -274,10 +274,9 @@
                                                     <i class="fa fa-pencil"></i>
                                                 </router-link>
                                             </template>
-
-                                            <button class="btn btn-danger btn-sm"
+                                            <button  class="btn btn-danger btn-sm"
                                                     @click="deleteRecord(row.index,row.item.product_variant_id)"
-                                                    v-if="$can('product_delete')" v-b-tooltip.hover :title="__('delete')">
+                                                    v-if="$can('product_delete') && login_user.role_id == 1" v-b-tooltip.hover :title="__('delete')">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </div>
@@ -356,11 +355,8 @@ export default {
                 {key: 'product_variant_id', label: __('id'), visible: true, sortable: true, sortDirection: 'desc'},
                 {key: 'product_id', label: __('product_id'), visible: true, sortable: true, sortDirection: 'desc'},
                 {key: 'tax_id', label: __('tax_id'), visible: false, sortable: true, class: 'text-center'},
-                {key: 'seller_name', label: __('seller_name'), visible: true, class: 'text-center', sortable: true},
                 {key: 'name', label: __('name'), visible: true, sortable: true, class: 'text-center'},
                 {key: 'image', label: __('image'), visible: true, class: 'text-center'},
-                {key: 'price', label: __('price')+'('+ this.$currency +')', visible: true, class: 'text-center', sortable: true},
-                {key: 'discounted_price', label: __('discounted_price')+'('+ this.$currency +')', /*label: 'D.Price',*/ visible: true, class: 'text-center', sortable: true},
                 {key: 'measurement', label: __('measurement'), visible: true, class: 'text-center', sortable: true},
                 {key: 'stock', label: __('stock'), visible: true, class: 'text-center', sortable: true},
                 {key: 'availability', label: __('availability'), visible: true, class: 'text-center', sortable: true},

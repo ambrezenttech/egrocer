@@ -52,10 +52,10 @@ class AdminAuthController extends Controller
         }
 
         //$otherRoleIds = array(3,4);
-        $otherRoleIds = array(Role::$roleSeller, Role::$roleDeliveryBoy);
-        if(in_array($user->role_id,$otherRoleIds) && \App\Models\Setting::get_value('purchase_code')==''){
-            return CommonHelper::responseError('System is not activated yet, Please Contact to Administrator!');
-        }
+        // $otherRoleIds = array(Role::$roleSeller, Role::$roleDeliveryBoy);
+        // if(in_array($user->role_id,$otherRoleIds) && \App\Models\Setting::get_value('purchase_code')==''){
+        //     return CommonHelper::responseError('System is not activated yet, Please Contact to Administrator!');
+        // }
 
         //If Seller
         if($user->role_id == Role::$roleSeller && isset($user->seller) && $user->seller->status == Seller::$statusRegistered){

@@ -13,6 +13,7 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\Tax;
 use App\Models\Unit;
+use App\Models\Seller_product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -83,9 +84,9 @@ class ProductApiController extends Controller
             $where .= empty($where) ? " WHERE pv.stock <= ".$low_stock_limit['value']." AND pv.status = '1' AND p.is_unlimited_stock != '1'" : " AND stock <= ".$low_stock_limit['value']." AND pv.status = '1' AND p.is_unlimited_stock != '1'";
         }
 
-        $products  = \DB::select(\DB::raw("SELECT p.id AS product_id,p.*, p.name,p.seller_id,p.status,p.tax_id, p.image,
+        $products  = \DB::select(\DB::raw("SELECT p.id AS product_id,p.*, p.name,p.status,p.tax_id, p.image,
         s.name as seller_name, p.indicator, p.manufacturer, p.made_in, p.return_status, p.cancelable_status, p.till_status, osl.status as till_status_name ,p.description,
-        pv.id as product_variant_id, pv.price, pv.discounted_price, pv.measurement, pv.status as pv_status , pv.stock,pv.stock_unit_id, u.short_code,
+        pv.id as product_variant_id,pv.measurement, pv.status as pv_status , pv.stock,pv.stock_unit_id, u.short_code,
         (select short_code from units where units.id = pv.stock_unit_id) as stock_unit
         FROM `products` p $join $where  order by p.id desc, pv.id asc "));
 
@@ -106,14 +107,9 @@ class ProductApiController extends Controller
 
     public function save(Request $request){
         // dd($request->loose_custom_title);
-        
         // \Log::info('Save : ',[$request->all()]);
         $validator = Validator::make($request->all(),[
-            'name' => [ 'required',
-            Rule::unique('products')->where(function($query) use ($request) {
-                $query->where('seller_id', $request->seller_id);
-                        })
-                ],
+            'name' => 'required|unique:products,name',
             'slug' => 'required|unique:products,slug',
             'description' => 'required',
             'image' => 'required|mimes:jpeg,jpg,png',
@@ -138,7 +134,6 @@ class ProductApiController extends Controller
         if ($validator->fails()) {
             return CommonHelper::responseError($validator->errors()->first());
         }
-        dd($request->all());
         
         $variations = array();
         if($request->type == "packet") {
@@ -183,7 +178,6 @@ class ProductApiController extends Controller
             $product->row_order = $row_order;
             $product->tax_id = $request->tax_id ?? "";
             $product->brand_id = $request->brand_id ?? "";
-            // $product->seller_id = $request->seller_id;
             $product->tags = $request->tags ?? "";
             $product->type = $request->type;
             $product->category_id = $request->category_id;
@@ -202,18 +196,7 @@ class ProductApiController extends Controller
             $product->is_approved = $request->is_approved;
             $product->status = 1;
             $product->brand_id = $request->brand_id;
-
-            $authuser = Auth::user();
-
-            if($authuser->role_id == 1){
-                $product->is_common = 1; 
-                $product->seller_id = NULL;
-            }
-            else if($authuser->role_id == 3){
-                $seller = Seller::where('admin_id',$authuser->id)->first();
-                $product->is_common = 0; 
-                $product->seller_id = $seller->id;
-            } 
+            $product->is_common = 1; 
 
             $image = '';
             if($request->hasFile('image')){
@@ -230,19 +213,14 @@ class ProductApiController extends Controller
 
             /*Variance*/
             if($request->type == "packet"){
-
                 foreach ($request->packet_measurement as $index => $item){
-
                     $data = array();
                     $data['product_id'] = $product->id;
                     $data['type'] = $request->type;
                     $data['measurement'] = $request->packet_measurement[$index];
-                    $data['price'] = $request->packet_price[$index];
-                    $data['discounted_price'] = isset($request->discounted_price[$index]) ? $request->discounted_price[$index] : 0;
                     $data['status'] = $request->packet_status[$index] ?? 1;
                     $data['stock'] = $request->packet_stock[$index];
                     $data['stock_unit_id'] = isset($request->packet_stock_unit_id[$index]) ? $request->packet_stock_unit_id[$index] : 0;
-
                     ProductVariant::insert($data);
                     $variant_id = DB::getPdo()->lastInsertId();
                     if($request->hasFile('packet_variant_images_'.$index)){
@@ -253,7 +231,6 @@ class ProductApiController extends Controller
 
             if($request->type == "loose"){
                 foreach ($request->loose_measurement as $index => $item){
-
                     $data = array();
                     $data['product_id'] = $product->id;
                     $data['type'] = $request->type;
@@ -261,10 +238,6 @@ class ProductApiController extends Controller
                     $data['stock_unit_id'] = $request->loose_stock_unit_id;
                     $data['status'] = $request->status;
                     $data['measurement'] = $request->loose_measurement[$index];
-                    $data['price'] = $request->loose_price[$index];
-
-                    $data['discounted_price'] = isset($request->loose_discounted_price[$index]) ? $request->loose_discounted_price[$index] : 0;
-
                     ProductVariant::insert($data);
                     $variant_id = DB::getPdo()->lastInsertId();
                     if($request->hasFile('loose_variant_images_'.$index)){
@@ -384,7 +357,6 @@ class ProductApiController extends Controller
             return CommonHelper::responseError($errors);
         }*/
 
-
         if($request->max_allowed_quantity == "" || $request->max_allowed_quantity == 0 ){
             $max_allowed_quantity = Setting::get_value('max_cart_items_count');
             if($max_allowed_quantity == "" || $max_allowed_quantity == 0 ){
@@ -433,17 +405,6 @@ class ProductApiController extends Controller
             $product->is_unlimited_stock = $request->is_unlimited_stock;
             $product->is_approved = $request->is_approved;
             $product->brand_id = $request->brand_id;
-
-
-            if($request->is_common == 1){
-                $product->is_common = 1; 
-                $product->seller_id = NULL;
-            }
-            else{
-                $authuser = Auth::user();
-                $product->is_common = 0; 
-                $product->seller_id = $authuser->id;
-            } 
             
             if($request->hasFile('image')){
                 $file = $request->file('image');
@@ -467,12 +428,28 @@ class ProductApiController extends Controller
                     $variant->product_id = $product->id;
                     $variant->type = $request->type;
                     $variant->measurement = $request->packet_measurement[$index];
-                    $variant->price = $request->packet_price[$index];
-                    $variant->discounted_price = isset($request->discounted_price[$index]) ? $request->discounted_price[$index] : 0;
+                    // $variant->price = $request->packet_price[$index];
+                    // $variant->discounted_price = isset($request->discounted_price[$index]) ? $request->discounted_price[$index] : 0;
                     $variant->status = $request->packet_status[$index];
                     $variant->stock = ($request->is_unlimited_stock == 0)?$request->packet_stock[$index]:0;
                     $variant->stock_unit_id = isset($request->packet_stock_unit_id[$index]) ? $request->packet_stock_unit_id[$index] : 0;
                     $variant->save();
+
+                    $authuser = Auth::user();
+                    if($authuser->role_id==3){
+                    $seller = Seller::where('admin_id',$authuser->id)->first(); 
+                    Seller_product::where('seller_id',$seller->id)->where('product_id',$product->id)->delete();
+                    $product_price = array(
+                        'seller_id'=>$seller->id,
+                        'product_id'=>$product->id,
+                        'product_variant_id'=>$variant->id,
+                        'price'=> $request->packet_price[$index],
+                        'discounted_price'=> isset($request->discounted_price[$index]) ? $request->discounted_price[$index] : 0,
+                    );
+                    
+                    Seller_product::insert($product_price);
+                    }
+
                     if($request->hasFile('packet_variant_images_'.$index)){
                         CommonHelper::uploadProductImages($request->file('packet_variant_images_'.$index),$product->id, $variant->id);
                     }
@@ -491,9 +468,26 @@ class ProductApiController extends Controller
                     $variant->stock_unit_id = $request->loose_stock_unit_id;
                     $variant->status = $request->status;
                     $variant->measurement = $request->loose_measurement[$index];
-                    $variant->price = $request->loose_price[$index];
-                    $variant->discounted_price = isset($request->loose_discounted_price[$index]) ? $request->loose_discounted_price[$index] : 0;
+                    // $variant->price = $request->loose_price[$index];
+                    // $variant->discounted_price = isset($request->loose_discounted_price[$index]) ? $request->loose_discounted_price[$index] : 0;
                     $variant->save();
+
+                    $authuser = Auth::user();
+                    if($authuser->role_id==3){
+                        $seller = Seller::where('admin_id',$authuser->id)->first(); 
+    
+                        Seller_product::where('seller_id',$seller->id)->where('product_id',$product->id)->delete();
+                        $product_price = array(
+                            'seller_id'=>$seller->id,
+                            'product_id'=>$product->id,
+                            'product_variant_id'=>$variant->id,
+                            'price'=> $request->loose_price[$index],
+                            'discounted_price'=> isset($request->loose_discounted_price[$index]) ? $request->loose_discounted_price[$index] : 0,
+                        );
+                         
+                        Seller_product::insert($product_price);
+                    }
+
                     if($request->hasFile('loose_variant_images_'.$index)){
                         CommonHelper::uploadProductImages($request->file('loose_variant_images_'.$index),$product->id, $variant->id);
                     }
