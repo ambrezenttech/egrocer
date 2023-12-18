@@ -39,7 +39,7 @@
 <body>
 
 <!--<div id="update_notification" class="toast" style="display:none; position: absolute; bottom: 10px; right: 10px;"></div>-->
-    <div id="update_notification" class="toast" style="display:none; position: fixed; z-index: 5; bottom: 10px; right: 10px;">
+    <!-- <div id="update_notification" class="toast" style="display:none; position: fixed; z-index: 5; bottom: 10px; right: 10px;">
         <div class="toast-header">
             <strong class="me-auto">
                 {{-- {{__("laraupdater.Update_Available")}} --}}
@@ -52,11 +52,11 @@
             <span id="update_description"></span>
             <hr>
             <button type="button" onclick="update();" class="btn btn-info btn-sm update_btn">
-                <!--{trans('laraupdater.Update_Now')}}-->
+                {trans('laraupdater.Update_Now')}}
                 Update Now
             </button>
         </div>
-    </div>
+    </div> -->
 
     <script>
         $(document).ready(function() {

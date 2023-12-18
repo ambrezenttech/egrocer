@@ -184,10 +184,6 @@
                                     <template #cell(image)="row">
                                         <img :src="$storageUrl + row.item.image" height="50" v-if="row.item.image"/>
                                     </template>
-                                    <template #cell(measurement)="row">
-<!--                                        {{ row.item.measurement + " " + row.item.short_code }}-->
-                                        {{ row.item.measurement }}
-                                    </template>
 
                                     <template #cell(stock)="row">
 
@@ -357,11 +353,9 @@ export default {
                 {key: 'tax_id', label: __('tax_id'), visible: false, sortable: true, class: 'text-center'},
                 {key: 'name', label: __('name'), visible: true, sortable: true, class: 'text-center'},
                 {key: 'image', label: __('image'), visible: true, class: 'text-center'},
-                {key: 'measurement', label: __('measurement'), visible: true, class: 'text-center', sortable: true},
                 {key: 'stock', label: __('stock'), visible: true, class: 'text-center', sortable: true},
                 {key: 'availability', label: __('availability'), visible: true, class: 'text-center', sortable: true},
                 {key: 'status', label: __('status'), visible: true, class: 'text-center', sortable: true},
-
                 {key: 'indicator', label: __('indicator'), visible: false, class: 'text-center', sortable: true},
                 {key: 'is_approved', label: __('is_approved'), visible: false, class: 'text-center', sortable: true},
                 {key: 'return_status', label: __('return'), visible: false, class: 'text-center', sortable: true},
