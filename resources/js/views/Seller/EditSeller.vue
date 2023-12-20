@@ -169,7 +169,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row pt-4">
                                         <div class="col-md-3">
                                             <label class="control-label">{{__('quick_delivery') }}</label><br>
                                             <b-form-radio-group
@@ -228,7 +228,7 @@
 
 
 
-                                <div class="row">
+                                <div class="row pt-4">
                                         <div class="col-md-3">
                                             <label class="control-label">{{__('schedule_delivery') }}</label><br>
                                             <b-form-radio-group
