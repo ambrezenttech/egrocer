@@ -110,6 +110,189 @@
 
                         <div class="card">
                             <div class="card-header">
+                                <h4>{{ __('delivery_information')}}</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+
+
+                                    <div class="col-md-3">
+                                        <label for="delivery_method" class="control-label">{{ __('delivery_method') }} <i class="text-danger">*</i></label>
+                                        <select id="delivery_method" name="delivery_method" required class="form-control form-select"
+                                                v-model="delivery_method">
+                                            <option value="0">Select Delivery Method</option>
+                                            <option v-for="dOption in deliveryOptions" v-bind:key="dOption.value" :value="dOption.value">{{ __(dOption.text) }}</option>
+                                        </select>
+                                    </div>
+
+
+                               
+                                    <div class="form-group col-md-3" v-if="delivery_method == 1">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('free') }}</label><br>
+                                            <b-form-radio-group
+                                                v-model="shop_own_free_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group" v-if="shop_own_free_enabled == 1">
+                                            <label class="control-label">{{ __('upToKm') }}</label><br>
+                                            <input type="number" class="form-control" v-model="shop_own_free_upToKm"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-3" v-if="delivery_method == 1">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('paid') }} </label><br>
+                                            <b-form-radio-group
+                                                v-model="shop_own_paid_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                    
+                                        <div class="form-group" v-if="shop_own_paid_enabled == 1">
+                                            <label class="control-label">{{ __('perKm') }}</label><br>
+                                            <input type="number" class="form-control" v-model="shop_own_paid_perKm"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="control-label">{{__('quick_delivery') }}</label><br>
+                                            <b-form-radio-group
+                                                v-model="quick_delivery_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group col-md-3" v-if="quick_delivery_enabled == 1">
+                                            <div class="form-group">
+                                                <div class="form-group">
+                                                    <label class="control-label">{{ __('free') }}</label><br>
+                                                    <b-form-radio-group
+                                                        v-model="quick_delivery_free_enabled"
+                                                        :options="[
+                                                                        { text: ' Yes', 'value': 1 },
+                                                                        { text: ' No', 'value': 0 },
+                                                                    ]"
+                                                        buttons
+                                                        button-variant="outline-primary"
+                                                        required
+                                                    ></b-form-radio-group>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" v-if="quick_delivery_free_enabled == 1">
+                                                <label class="control-label">{{ __('upToKm') }}</label><br>
+                                                <input type="number" class="form-control" v-model="quick_delivery_free_upToKm"/>
+                                            </div>
+                                        </div>
+
+                                    <div class="form-group col-md-3" v-if="quick_delivery_enabled == 1">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('paid') }} </label><br>
+                                            <b-form-radio-group
+                                                v-model="quick_delivery_paid_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group" v-if="quick_delivery_paid_enabled == 1">
+                                            <label class="control-label">{{ __('perKm') }}</label><br>
+                                            <input type="number" class="form-control" v-model="quick_delivery_paid_perKm"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="control-label">{{__('schedule_delivery') }}</label><br>
+                                            <b-form-radio-group
+                                                v-model="schedule_delivery_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group col-md-3" v-if="schedule_delivery_enabled == 1">
+                                            <div class="form-group">
+                                                <div class="form-group">
+                                                    <label class="control-label">{{ __('free') }}</label><br>
+                                                    <b-form-radio-group
+                                                        v-model="schedule_delivery_free_enabled"
+                                                        :options="[
+                                                                        { text: ' Yes', 'value': 1 },
+                                                                        { text: ' No', 'value': 0 },
+                                                                    ]"
+                                                        buttons
+                                                        button-variant="outline-primary"
+                                                        required
+                                                    ></b-form-radio-group>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" v-if="schedule_delivery_free_enabled == 1">
+                                                <label class="control-label">{{ __('upToKm') }}</label><br>
+                                                <input type="number" class="form-control" v-model="schedule_delivery_free_upToKm"/>
+                                            </div>
+                                        </div>
+
+                                    <div class="form-group col-md-3" v-if="schedule_delivery_enabled == 1">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('paid') }} </label><br>
+                                            <b-form-radio-group
+                                                v-model="schedule_delivery_paid_enabled"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group" v-if="schedule_delivery_paid_enabled == 1">
+                                            <label class="control-label">{{ __('perKm') }}</label><br>
+                                            <input type="number" class="form-control" v-model="schedule_delivery_paid_perKm"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="card">
+                            <div class="card-header">
                                 <h4>Store Information</h4>
                             </div>
                             <div class="card-body">
@@ -442,6 +625,8 @@
                             </div>
                         </div>
 
+
+                      
                         <div class="card" v-if="this.$roleSeller !== this.login_user.role.name">
                             <div class="card-header">
                                 <h4>Seller Bank Information</h4>
@@ -720,7 +905,29 @@ export default {
             id_card: "",
             proof: "",
 
-            commissionRule: false
+            commissionRule: false,
+            
+            deliveryOptions: [
+                {text: 'ShopOwn', value: 1},
+                {text: 'CompanyDelivery', value: 2},
+            ],
+            delivery_method: 0,
+            shop_own_free_enabled : 1,
+            shop_own_free_upToKm : 1,
+            shop_own_paid_enabled : 1,
+            shop_own_paid_perKm : 5,
+
+            quick_delivery_enabled : 0,
+            quick_delivery_free_enabled : 1,
+            quick_delivery_free_upToKm : 1,
+            quick_delivery_paid_enabled : 1,
+            quick_delivery_paid_perKm : 7,
+
+            schedule_delivery_enabled : 0,
+            schedule_delivery_free_enabled : 1,
+            schedule_delivery_free_upToKm : 1,
+            schedule_delivery_paid_enabled : 1,
+            schedule_delivery_paid_perKm : 5,
         }
     },
     created: function () {
@@ -973,6 +1180,28 @@ export default {
                         this.change_order_status_delivered = this.record.change_order_status_delivered;
                         this.status = this.record.status;
                         this.store_logo = this.record.store_logo;
+                        
+                        this.delivery_method = this.record.delivery_method;
+
+                        this.shop_own_free_enabled = this.record.shop_own_free_enabled;
+                        this.shop_own_paid_enabled = this.record.shop_own_paid_enabled;
+                        this.shop_own_free_upToKm = this.record.shop_own_free_upToKm;
+                        this.shop_own_paid_perKm = this.record.shop_own_paid_perKm;
+
+                        this.quick_delivery_enabled = this.record.quick_delivery_enabled;
+                        this.quick_delivery_free_enabled = this.record.quick_delivery_free_enabled;
+                        this.quick_delivery_paid_enabled = this.record.quick_delivery_paid_enabled;
+                        this.quick_delivery_free_upToKm = this.record.quick_delivery_free_upToKm;
+                        this.quick_delivery_paid_perKm = this.record.quick_delivery_paid_perKm;
+
+
+                        this.schedule_delivery_enabled = this.record.schedule_delivery_enabled;
+                        this.schedule_delivery_free_enabled = this.record.schedule_delivery_free_enabled;
+                        this.schedule_delivery_paid_enabled = this.record.schedule_delivery_paid_enabled;
+                        this.schedule_delivery_free_upToKm = this.record.schedule_delivery_free_upToKm;
+                        this.schedule_delivery_paid_perKm = this.record.schedule_delivery_paid_perKm;
+
+
                         /*this.national_id_card = this.record.national_id_card;
                         this.address_proof = this.record.address_proof;*/
 
@@ -1056,6 +1285,52 @@ export default {
             formData.append('store_logo', this.store_logo);
             formData.append('national_id_card', this.national_id_card);
             formData.append('address_proof', this.address_proof);
+
+            formData.append('delivery_method', this.delivery_method);
+            if(this.delivery_method == 1){
+                formData.append('shop_own_free_enabled', this.shop_own_free_enabled);
+                formData.append('shop_own_paid_enabled', this.shop_own_paid_enabled);
+                formData.append('shop_own_free_upToKm', (this.shop_own_free_enabled) ? this.shop_own_free_upToKm : 0);
+                formData.append('shop_own_paid_perKm', (this.shop_own_paid_enabled) ? this.shop_own_paid_perKm : 0);
+            }else{
+                formData.append('shop_own_free_enabled', 0);
+                formData.append('shop_own_paid_enabled', 0);
+                formData.append('shop_own_free_upToKm', 0);
+                formData.append('shop_own_paid_perKm', 0);
+            }
+
+            
+           
+
+            formData.append('quick_delivery_enabled', this.quick_delivery_free_enabled || this.quick_delivery_paid_enabled);
+            if(this.quick_delivery_enabled){
+                formData.append('quick_delivery_free_enabled', this.quick_delivery_free_enabled);
+                formData.append('quick_delivery_paid_enabled', this.quick_delivery_paid_enabled);
+
+                formData.append('quick_delivery_free_upToKm', (this.quick_delivery_free_enabled) ? this.quick_delivery_free_upToKm : 0);
+                formData.append('quick_delivery_paid_perKm', (this.quick_delivery_paid_enabled) ?this.quick_delivery_paid_perKm : 0);
+            } else {
+                formData.append('quick_delivery_free_enabled', 0);
+                formData.append('quick_delivery_paid_enabled', 0);
+
+                formData.append('quick_delivery_free_upToKm', 0);
+                formData.append('quick_delivery_paid_perKm', 0);
+            }
+
+            formData.append('schedule_delivery_enabled', this.schedule_delivery_free_enabled || this.schedule_delivery_paid_enabled);
+            if(this.schedule_delivery_enabled){
+                formData.append('schedule_delivery_free_enabled', this.schedule_delivery_free_enabled);
+                formData.append('schedule_delivery_paid_enabled', this.schedule_delivery_paid_enabled);
+
+                formData.append('schedule_delivery_free_upToKm', (this.schedule_delivery_free_enabled) ? this.schedule_delivery_free_upToKm : 0);
+                formData.append('schedule_delivery_paid_perKm', (this.schedule_delivery_paid_enabled) ? this.schedule_delivery_paid_perKm : 0);
+            } else{
+                formData.append('schedule_delivery_free_enabled', 0);
+                formData.append('schedule_delivery_paid_enabled', 0);
+
+                formData.append('schedule_delivery_free_upToKm', 0);
+                formData.append('schedule_delivery_paid_perKm', 0);
+            }
 
             let url = this.$apiUrl + '/sellers/save';
             if (this.id) {
