@@ -193,6 +193,7 @@ class SellerApiController extends Controller
             'city_id' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
+            'delivery_method' => 'required',
 
         ]);
         /*'bank_name' => 'required',
@@ -252,6 +253,27 @@ class SellerApiController extends Controller
                     $record->change_order_status_delivered = $request->change_order_status_delivered;
                     $record->status = $request->status;
                     $record->remark = $request->remark;
+
+                    $record->delivery_method = $request->delivery_method;
+
+                    $record->shop_own_free_enabled = $request->shop_own_free_enabled;
+                    $record->shop_own_paid_enabled = $request->shop_own_paid_enabled;
+                    $record->shop_own_free_upToKm = $request->shop_own_free_upToKm;
+                    $record->shop_own_paid_perKm = $request->shop_own_paid_perKm;
+
+                    $record->quick_delivery_enabled = $request->quick_delivery_enabled;
+                    $record->quick_delivery_free_enabled = $request->quick_delivery_free_enabled;
+                    $record->quick_delivery_paid_enabled = $request->quick_delivery_paid_enabled;
+                    $record->quick_delivery_free_upToKm = $request->quick_delivery_free_upToKm;
+                    $record->quick_delivery_paid_perKm = $request->quick_delivery_paid_perKm;
+
+
+                    $record->schedule_delivery_enabled = $request->schedule_delivery_enabled;
+                    $record->schedule_delivery_free_enabled = $request->schedule_delivery_free_enabled;
+                    $record->schedule_delivery_paid_enabled = $request->schedule_delivery_paid_enabled;
+                    $record->schedule_delivery_free_upToKm = $request->schedule_delivery_free_upToKm;
+                    $record->schedule_delivery_paid_perKm = $request->schedule_delivery_paid_perKm;
+
                     //$record->slug = '';
 
                     if ($request->hasFile('store_logo')) {
