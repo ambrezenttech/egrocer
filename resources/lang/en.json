@@ -403,6 +403,18 @@
     "system_type": "System type",
     "select_system_type": "Select system type",
     "all_system_types": "All system types",
-    "default": "Default"
+    "default": "Default",
+
+    "delivery_information": "Delivery Information",
+    "delivery_method": "Delivery Method",
+    "ShopOwn": "Shop Own",
+    "CompanyDelivery": "Company Delivery",
+    "quick_delivery": "Quick Delivery",
+    "schedule_delivery": "Schedule Delivery",
+    "upToKm" : "Up to Kms",
+    "perKm" : "Per Km",
+    "free" : "Free",
+    "paid" : "Paid"
+
 
 }
