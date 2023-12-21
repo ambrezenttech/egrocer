@@ -420,7 +420,11 @@
     "fold" : "Fold",
     "hanger" : "Hanger",
     "individual" : "Individual",
-    "mixed" : "Mixed"
+    "mixed" : "Mixed",
 
+    "corporation" : "Corporation",
+    "channel_partner" : "Channel Partner",
+    "subscription" : "Subscription",
+    "commission" : "commission"
 
 }

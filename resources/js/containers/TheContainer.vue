@@ -640,6 +640,29 @@ export default {
                         }
                     ]
                 },
+
+                {
+                    name: __('corporation'),
+                    icon: 'suitcase',
+                    permission:'seller_list',
+                    submenu: [
+                        {
+                            name: __('channel_partner'),
+                            icon : 'grid-fill',
+                            url:'/corporation/channel_partner'
+                        },
+                        {
+                            name: __('subscription'),
+                            icon : 'grid-fill',
+                            url:'/set-subscription'
+                        },
+                        {
+                            name: __('commission'),
+                            icon : 'grid-fill',
+                            url:'/corporation/commission'
+                        }
+                    ],
+                },
                 {
                     name: __('system_users'),
                     icon : 'users',

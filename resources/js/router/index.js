@@ -221,6 +221,12 @@ const DeliveryBoySalesReports = () => import("../views/DeliveryBoy/SalesReports"
 const DeliverySettings = () => import('../views/Settings');
 const DeliveryProfile = () => import("../views/DeliveryBoys/EditDeliveryBoy");
 
+
+const SetChannelPartner = () => import("../views/Corporation/SetChannelPartner");
+const SetCommission = () => import('../views/Corporation/SetCommission');
+const SetSubscription = () => import("../views/Corporation/SetSubscription");
+
+
 let router = new Router({
     //mode: "hash", // https://router.vuejs.org/api/#mode
     mode: "history",
@@ -604,6 +610,42 @@ function configRoutes() {
 
                     },
                 },
+
+
+                {
+                    path: "corporation/channel_partner",
+                    name: "SetChannelPartner",
+                    component: SetChannelPartner,
+                    meta: {
+                        permission: 'order_list',
+                        role: adminRoles,
+                        title:'Set ChannelPartner'
+                    },
+                },
+        
+                {
+                    path: "set-subscription",
+                    name: "SetSubscription",
+                    component: SetSubscription,
+                    // meta: {
+                    //     permission: 'order_list',
+                    //     role: adminRoles,
+                    //     title:'Set Subscription'
+                    // },
+                },
+        
+                {
+                    path: "corporation/commission",
+                    name: "SetCommission",
+                    component: SetCommission,
+                    meta: {
+                        permission: 'order_list',
+                        role: adminRoles,
+                        title:'Set Commission'
+                    },
+                },
+
+                
                 {
                     path: "promo_code/:create",
                     name: "promo_code_create",
@@ -1672,6 +1714,9 @@ function configRoutes() {
                 title:'Reset Password'
             },
         },
+
+        
+
 
         /*Other Pages*/
         { path: "/unauthorized", component: Unauthorized, meta: { title:'Unauthorized' } },

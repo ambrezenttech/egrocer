@@ -23,12 +23,11 @@ class SellerApiController extends Controller
 {
     public function getSellers(Request $request){
         $filterStatus = $request->filterStatus;
-        $sellers = Seller::select("*");
+        $sellers = Seller::apply($request);
         if(isset($filterStatus) && $filterStatus != ""){
             $sellers = $sellers->where("status",$filterStatus);
         }
-        $sellers = $sellers->orderBy('id','DESC')->get();
-        return CommonHelper::responseWithData($sellers);
+        return CommonHelper::responseWithData($sellers, count($sellers));
     }
 
     public function save(Request $request){
