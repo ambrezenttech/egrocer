@@ -50,6 +50,7 @@ class DeliveryBoysApiController extends Controller
             'bank_account_number' => 'required',
             'account_name' => 'required',
             'city_id' => 'required',
+            'seller_id' => 'nullable|exists:sellers,id',
             'address' => 'required',
             'driving_license' => 'required|mimes:jpeg,jpg,png,gif,pdf',
             'national_identity_card' => 'required|mimes:jpeg,jpg,png,gif,pdf',
@@ -105,6 +106,7 @@ class DeliveryBoysApiController extends Controller
             $deliveryBoy->account_name = $request->account_name;
             $deliveryBoy->address = $request->address;
             $deliveryBoy->city_id = $request->city_id;
+            $deliveryBoy->seller_id = $request->seller_id ?? null;
             $deliveryBoy->other_payment_information = $request->other_payment_information;
             $deliveryBoy->status = DeliveryBoy::$statusActive;
             $deliveryBoy->save();
@@ -216,6 +218,8 @@ class DeliveryBoysApiController extends Controller
                 $deliveryBoy->other_payment_information = $request->other_payment_information;
                 $deliveryBoy->status = $request->status;
                 $deliveryBoy->remark = $request->remark;
+
+                $deliveryBoy->seller_id = $request->seller_id ?? null;
 
                 $deliveryBoy->is_available = $request->status;
                 $deliveryBoy->save();

@@ -153,6 +153,16 @@
                                 </multiselect>
                             </div>
 
+
+                            <div class="form-group col-md-4">
+                                        <div class="form-group">
+                                            <label>Seller</label>
+                                            <Select2 v-model="deliveryBoys.seller_id"
+                                                     placeholder="Select Seller"
+                                                     :options="seller_options"/>
+                                        </div>
+                                    </div>
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="address">Address <span class="text-danger text-xs">*</span></label>
@@ -370,6 +380,7 @@ export default {
             cities: [],
             id: null,
             bonusSettings: null,
+            seller_options: [],
             deliveryBoys:{
                 id: null ,
                 admin_id: "",
@@ -401,12 +412,13 @@ export default {
                 bonus_percentage: "",
                 bonus_min_amount: "",
                 bonus_max_amount: "",
+                seller_id: "",
 
             },
         };
     },
     created: function () {
-
+        this.getSellers();
         this.id = this.$route.params.id;
         if(this.$roleDeliveryBoy === this.login_user.role.name){
             this.id = this.login_user.delivery_boy.id;
@@ -539,6 +551,7 @@ export default {
                         this.deliveryBoys.bonus_percentage = this.record ? this.record.bonus_percentage : 0;
                         this.deliveryBoys.bonus_min_amount = this.record ? this.record.bonus_min_amount : 0;
                         this.deliveryBoys.bonus_max_amount = this.record ? this.record.bonus_max_amount : 0;
+                        this.deliveryBoys.seller_id = this.record?.seller_id ?? null;
 
                     }else{
                         this.showError(data.message);
@@ -606,7 +619,30 @@ export default {
                     this.showError("Something went wrong!");
                 }
             });
-        }
+        },
+
+        getSellers() {
+            this.seller_options = [];
+            this.isLoading = true
+            axios.get(this.$apiUrl + '/sellers')
+                .then((response) => {
+                    this.isLoading = false
+                    let data = response.data;
+                    var sellers = data.data;
+                    sellers.forEach(seller => {
+                       this.seller_options.push({id: seller.id, text: seller.name});
+                    });
+                }).catch(error => {
+                this.isLoading = false;
+                if (error?.request?.statusText) {
+                    this.showError(error.request.statusText);
+                }else if (error.message) {
+                    this.showError(error.message);
+                } else {
+                    this.showError(__('something_went_wrong'));
+                }
+            });
+        },
     }
 };
 </script>

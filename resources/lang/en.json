@@ -414,7 +414,13 @@
     "upToKm" : "Up to Kms",
     "perKm" : "Per Km",
     "free" : "Free",
-    "paid" : "Paid"
+    "paid" : "Paid",
+
+    "services" : "services",
+    "fold" : "Fold",
+    "hanger" : "Hanger",
+    "individual" : "Individual",
+    "mixed" : "Mixed"
 
 
 }

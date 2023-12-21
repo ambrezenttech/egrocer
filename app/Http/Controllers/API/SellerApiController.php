@@ -125,6 +125,12 @@ class SellerApiController extends Controller
             $record->schedule_delivery_free_upToKm = $request->schedule_delivery_free_upToKm;
             $record->schedule_delivery_paid_perKm = $request->schedule_delivery_paid_perKm;
 
+
+            $record->fold = $request->fold;
+            $record->hanger = $request->hanger;
+            $record->individual = $request->individual;
+            $record->mixed = $request->mixed;
+            
             if($request->hasFile('store_logo')){
                 $file = $request->file('store_logo');
                 $fileName = time().'_'.rand(1111,99999).'.'.$file->getClientOriginalExtension();
@@ -273,6 +279,13 @@ class SellerApiController extends Controller
                     $record->schedule_delivery_paid_enabled = $request->schedule_delivery_paid_enabled;
                     $record->schedule_delivery_free_upToKm = $request->schedule_delivery_free_upToKm;
                     $record->schedule_delivery_paid_perKm = $request->schedule_delivery_paid_perKm;
+
+
+                    $record->fold = $request->fold;
+                    $record->hanger = $request->hanger;
+                    $record->individual = $request->individual;
+                    $record->mixed = $request->mixed;
+
 
                     //$record->slug = '';
 

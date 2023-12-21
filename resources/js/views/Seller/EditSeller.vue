@@ -288,7 +288,79 @@
                             </div>
                         </div>
 
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>{{ __('services')}}</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                               
+                                    <div class="form-group col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('fold') }}</label><br>
+                                            <b-form-radio-group
+                                                v-model="fold"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                    </div>
 
+                                    <div class="form-group col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('hanger') }} </label><br>
+                                            <b-form-radio-group
+                                                v-model="hanger"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                    
+                                    </div>
+                               
+                                        <div class="col-md-3">
+                                            <label class="control-label">{{__('individual') }}</label><br>
+                                            <b-form-radio-group
+                                                v-model="individual"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+
+                                    <div class="col-md-3" >
+                                        <div class="form-group">
+                                            <label class="control-label">{{ __('mixed') }} </label><br>
+                                            <b-form-radio-group
+                                                v-model="mixed"
+                                                :options="[
+                                                                { text: ' Yes', 'value': 1 },
+                                                                { text: ' No', 'value': 0 },
+                                                            ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                                required
+                                            ></b-form-radio-group>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
 
 
                         <div class="card">
@@ -928,6 +1000,12 @@ export default {
             schedule_delivery_free_upToKm : 1,
             schedule_delivery_paid_enabled : 1,
             schedule_delivery_paid_perKm : 5,
+
+            fold : 1,
+            hanger : 0,
+            mixed : 1,
+            individual : 0,
+
         }
     },
     created: function () {
@@ -1201,6 +1279,11 @@ export default {
                         this.schedule_delivery_free_upToKm = this.record.schedule_delivery_free_upToKm;
                         this.schedule_delivery_paid_perKm = this.record.schedule_delivery_paid_perKm;
 
+                        this.fold = this.record.fold;
+                        this.hanger = this.record.hanger;
+                        this.individual = this.record.individual;
+                        this.mixed = this.record.mixed;
+
 
                         /*this.national_id_card = this.record.national_id_card;
                         this.address_proof = this.record.address_proof;*/
@@ -1331,6 +1414,11 @@ export default {
                 formData.append('schedule_delivery_free_upToKm', 0);
                 formData.append('schedule_delivery_paid_perKm', 0);
             }
+            formData.append('fold', this.fold);
+            formData.append('hanger', this.hanger);
+            formData.append('individual', this.individual);
+            formData.append('mixed', this.mixed);
+
 
             let url = this.$apiUrl + '/sellers/save';
             if (this.id) {
