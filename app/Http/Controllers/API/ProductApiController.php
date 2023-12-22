@@ -61,12 +61,12 @@ class ProductApiController extends Controller
         $select = "";
         $authuser = Auth::user();
         if($authuser->role_id==3) {
-            $seller = Seller::where('admin_id',$authuser->id)->first(); 
-            $join.= " LEFT JOIN `seller_products` sp ON sp.product_id = p.id  AND sp.seller_id = $seller->id";
+            $sellerRecord = Seller::where('admin_id',$authuser->id)->first(); 
+            $join.= " LEFT JOIN `seller_products` sp ON sp.product_id = p.id  AND sp.seller_id = $sellerRecord->id";
 
-            $select = " sp.price, sp.discounted_price, sp.seller_id as seller_product_seller_id ";
+            $select = ", sp.price, sp.discounted_price, sp.seller_id as seller_product_seller_id ";
 
-            // $where .= empty($where) ? " WHERE sp.seller_id = $seller->id" : " AND sp.seller_id = $seller->id"; 
+            // $where .= empty($where) ? " WHERE sp.seller_id = $seller->id" : " AND sp.seller_id = $sellerRecord->id"; 
 
         }
         /*if(isset($request->shipping_type) && $request->shipping_type !== "" ){
@@ -98,7 +98,7 @@ class ProductApiController extends Controller
         $products  = \DB::select(\DB::raw("SELECT p.id AS product_id,p.*, p.name,p.status,p.tax_id, p.image,
         s.name as seller_name, p.indicator, p.manufacturer, p.made_in, p.return_status, p.cancelable_status, p.till_status, osl.status as till_status_name ,p.description,
         pv.id as product_variant_id,pv.measurement, pv.status as pv_status , pv.stock,pv.stock_unit_id, u.short_code,
-        (select short_code from units where units.id = pv.stock_unit_id) as stock_unit, $select
+        (select short_code from units where units.id = pv.stock_unit_id) as stock_unit $select
         FROM `products` p $join $where  order by p.id desc, pv.id asc "));
 
         $data = array(
