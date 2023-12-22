@@ -48,30 +48,16 @@
                                     <div class="col-md-6">
                                         <label>{{ __('product_name') }}</label>
                                         <i class="text-danger">*</i>
-                                        <input type="text" :disabled="login_user.role_id==1?false:true" class="form-control" :placeholder="__('enter_product_name')" v-model="name" v-on:keyup="createSlug">
+                                        <input type="text" :disabled="login_user.role_id==1 ? false : true" class="form-control" :placeholder="__('enter_product_name')" v-model="name" v-on:keyup="createSlug">
                                     </div>
                                     <div class="col-md-6">
                                         <label>{{ __('slug') }}</label>
                                         <i class="text-danger">*</i>
-                                        <input type="text" :disabled="login_user.role_id==1?false:true" class="form-control" :placeholder="__('enter_product_slug')" v-model="slug">
+                                        <input type="text" :disabled="login_user.role_id==1 ? false : true" class="form-control" :placeholder="__('enter_product_slug')" v-model="slug">
                                     </div>
-                                    <template v-if="this.$roleSeller == login_user.role.name">
-                                        <input type="hidden" v-model="seller_id">
-                                    </template>
-                                    <template v-else>
-                                        <div class="col-md-6">
-                                            <label class="control-label" for="seller_id">{{ __('seller') }}</label>
-                                            <select id="seller_id" name="seller_id" class="form-control form-select"
-                                                    v-model="seller_id" required @change="getSellerCategories">
-                                                <option value="0">{{ __('all_seller') }}</option>
-                                                <option v-for="seller in sellers" :value="seller.id">{{ seller.name }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </template>
                                     <div class="col-md-6">
                                         <label for="tax_id" class="control-label">{{ __('tax') }}</label>
-                                        <select id="tax_id" :disabled="login_user.role_id==1?false:true" name="tax_id" class="form-control form-select"
+                                        <select id="tax_id" :disabled="login_user.role_id==1 ? false : true" name="tax_id" class="form-control form-select"
                                                 v-model="tax_id">
                                             <option value="0">Select Tax</option>
                                             <option v-for="tax in taxes" :value="tax.id">{{ tax.title }}</option>
@@ -79,11 +65,68 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>{{ __('main_image')}} <i class="text-danger">*</i></label>
-                                            <input :disabled="login_user.role_id==1?false:true" type="file" name="image" accept="image/*" ref="file_image" v-on:change="fileImage" class="file-input">
+                                            <label for="tags" class="control-label" >{{ __('tags') }}  ( {{__('these_tags_help_you_in_search_result')}} )</label>
+                                            <b-form-tags
+                                                input-id="tags"
+                                                v-model="tags"
+                                                tag-variant="primary"
+                                                separator=" ,;"
+                                                :placeholder="__('enter_product_tag')"
+                                                :disabled="login_user.role_id==1 ? false : true"
+                                                no-add-on-enter
+                                            ></b-form-tags>
 
-                                            <div :disabled="login_user.role_id==1?false:true" class="file-input-div bg-gray-100" @click="$refs.file_image.click()" @drop="dropFile" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
-                                                <template v-if="main_image_name == ''" :disabled="login_user.role_id==1?false:true">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('brands') }}</label>
+                                            <multiselect v-model="brand"
+                                                         :options="brands"
+                                                         :placeholder="__('select_and_search_brands')"
+                                                         label="name"
+                                                         :disabled="login_user.role_id==1? false : true"
+                                                         track-by="name" required>
+                                                <template slot="singleLabel" slot-scope="props">
+                                                    <span class="option__desc">
+                                                        <span class="option__title">{{ props.option.name }}</span>
+                                                    </span>
+                                                </template>
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="option__desc">
+                                                        <span class="option__small">
+                                                            <img style="height: 25px; " class="option__image" :src="props.option.image_url" alt="Brand Logo">
+                                                        </span>
+                                                        <span class="option__title">{{ props.option.name }}</span>
+                                                    </div>
+                                                </template>
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{ __('description') }} <i class="text-danger">*</i></label>
+                                            <editor
+                                                :placeholder="__('enter_product_description')"
+                                                v-model="description"
+                                                :api-key="this.$editorKey"
+                                                :disabled="login_user.role_id==1 ? false : true"
+                                                :init="{
+                                                    height:400,
+                                                    plugins: this.$editorPlugins ,
+                                                    toolbar: this.$editorToolbar,
+                                                    font_size_formats: this.$editorFont_size_formats,
+                                                   }"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('main_image')}} <i class="text-danger">*</i></label>
+                                            <input :disabled="login_user.role_id==1 ? false : true" type="file" name="image" accept="image/*" ref="file_image" v-on:change="fileImage" class="file-input">
+
+                                            <div :disabled="login_user.role_id==1 ? false : true" class="file-input-div bg-gray-100" @click="$refs.file_image.click()" @drop="dropFile" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
+                                                <template v-if="main_image_name == ''" :disabled="login_user.role_id==1 ? false : true">
                                                     <label><i class="fa fa-cloud-upload fa-2x"></i></label>
                                                     <label>{{ __('drop_files_here_or_click_to_upload') }}</label>
                                                 </template>
@@ -100,41 +143,454 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="other_images">{{ __('other_images_of_the_product') }}</label>
+
+                                            <input type="file" name="other_images[]" accept="image/*" id="other_images" v-on:change="otherImage" multiple="" ref="file_other_images" class="file-input">
+
+                                            <div class="file-input-div bg-gray-100" @click="$refs.file_other_images.click()" @drop="dropFileOtherImage" @dragover="$dragoverFile" @dragleave="$dragleaveFile">
+                                                <template v-if="images.length === 0 ">
+                                                    <label><i class="fa fa-cloud-upload fa-2x"></i></label>
+                                                    <label>{{ __('drop_files_here_or_click_to_upload') }}</label>
+                                                </template>
+                                                <template v-else>
+                                                    <template v-if="images.length === 1 ">
+                                                        <label>Selected file name:- {{ images[0].name }}</label>
+                                                    </template>
+                                                    <template v-else>
+                                                        <label>{{ images.length }} files Selected</label>
+                                                        <span><small v-for="image in images">{{ image.name }}, </small></span>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                            <span class="text text-primary"> *Please choose square image of larger than 350px*350px &amp; smaller than 550px*550px.</span>
+
+                                            <div class="row" v-if="images && images.length !== 0">
+                                                <h6 class="mt-3">Seleted Other Image List.</h6>
+                                                <div class="col-md-4 image-container" v-if="images.length !== 0" v-for="(image, index) in images">
+                                                    <img class="img-thumbnail custom-image" :src="image.url" title='Selected Other Image' alt='Selected Other Image'/>
+                                                    <button type="button" @click="removeOtherImage(images.indexOf(image))" class="btn btn-sm btn-danger btn-remove"> <i class="fa fa-times-circle"></i> </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row" v-if="other_images && other_images.length !== 0">
+                                                <h6 class="mt-3">Uploaded Other Image List.</h6>
+                                                <div class="col-md-4 image-container" v-if="other_images.length !== 0" v-for="(image, index) in other_images">
+                                                    <img class="img-thumbnail custom-image" :src="$storageUrl + image.image" title='Other Image' alt='Other Image'/>
+                                                    <button type="button" @click="deleteImage(index, image.id, true)" class="btn btn-sm btn-danger btn-remove"> <i class="fa fa-times-circle"></i> </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="card">
                             <div class="card-header">
-                                <h4>{{__('product_settings')}}</h4>
+                                <h4>Product Variant</h4>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div  v-if="type === 'packet'" v-for="(input,k) in inputs" :key="k">
+                                <div class="col-md-6">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="form-group col-6">
+                                            <label>{{ __('type') }} <i class="text-danger">*</i></label><br>
+                                            <b-form-radio-group
+                                                v-model="type"
+                                                :disabled="login_user.role_id==1 ? false : true"
+                                                :options="[
+                                                        { text: ' Packet', 'value': 'packet' },
+                                                        { text: ' Loose', 'value': 'loose' },
+                                                        ]"
+                                                buttons button-variant="outline-primary"
+                                            ></b-form-radio-group>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label class="control-label">{{ __('stock_limit') }} <i class="text-danger">*</i></label><br>
+                                            <b-form-radio-group
+                                                v-model="is_unlimited_stock"
+                                                :disabled="login_user.role_id==1 ? false : true"
+                                                :options="[
+                                                            { text: ' Limited', 'value': 0 },
+                                                            { text: ' Unlimited', 'value': 1 },
+                                                        ]"
+                                                buttons
+                                                button-variant="outline-primary"
+                                            ></b-form-radio-group>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="packate_div" class="list-group-item" v-if="type === 'packet'" v-for="(input,k) in inputs" :key="k">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('measurement') }}</label>
+                                                <i class="text-danger">*</i>
+                                                <input type="number" :disabled="login_user.role_id==1 ? false : true" step="any" min="0" class="form-control" placeholder="0"
+                                                       v-model="input.packet_measurement">
+                                            </div>
+                                        </div>
+                                        <!--                                            <div class="col-md-3">
+                                                                                        <div class="form-group">
+                                                                                            <label>Unit:</label>
+                                                                                            <select class="form-control form-select" @change="changeUnits()"
+                                                                                                    :disabled="k>0" v-model="input.packet_measurement_unit_id = inputs[0].packet_measurement_unit_id">
+                                                                                                <option v-for="(unit,key) in units" :value="unit.id">{{ unit.short_code }}</option>
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    </div>-->
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{ __('price') }} ( {{ $currency }} )</label> <i class="text-danger">*</i>
                                                 <input :disabled="login_user.role_id==1?true:false" type="number" step="any" min="0" class="form-control" placeholder="0.00"
                                                        v-model="input.packet_price">
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label>{{__('discounted_price')}} ( {{ $currency }} )</label>
                                                 <input :disabled="login_user.role_id==1?true:false" type="number" step="any" min="0" class="form-control" placeholder="0.00"
                                                        v-model="input.discounted_price">
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                                <div class="form-group">
-                                            <label>{{ __('category') }} <i class="text-danger">*</i></label>
-                                            <select class="form-control form-select" v-model="category_id"
-                                                    v-html="categoryOptions" :disabled="login_user.role_id==1?false:true">
-                                            </select>
+                                        <div class="col-md-4" v-if="is_unlimited_stock!=1">
+                                            <div class="form-group">
+                                                <label>{{ __('stock') }}</label> <i class="text-danger">*</i>
+                                                <input :disabled="login_user.role_id==1 ? false : true" type="number" step="any" min="0" class="form-control" placeholder="0"
+                                                       name="packate_stock[]" v-model="input.packet_stock">
+                                            </div>
                                         </div>
-                                       </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('unit') }}</label>
+<!--                                                <select class="form-control form-select" @change="changeUnits()" v-model="input.packet_stock_unit_id = inputs[0].packet_stock_unit_id">-->
+                                                <select :disabled="login_user.role_id==1 ? false : true" class="form-control form-select" @change="changeUnits()" v-model="input.packet_stock_unit_id">
+                                                    <option value="">{{ __('select_unit') }}</option>
+
+                                                    <option v-for="(unit,key) in units" :value="unit.id">{{ unit.short_code }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>{{ __('status') }}</label>
+                                                <select :disabled="login_user.role_id==1 ? false : true" class="form-control form-select" v-model="input.packet_status">
+                                                    <option value="">{{ __('select_status') }}</option>
+                                                    <option value="1">{{ __('available') }}</option>
+                                                    <option value="0">{{ __('sold_out') }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 ">
+                                            <div class="form-group">
+                                                <label>{{ __('variant_images') }}</label>
+                                                <input :disabled="login_user.role_id==1 ? false : true" type="file" accept="image/*" :ref="'packet_variant_images_'+k " multiple class="file-input"
+                                                       v-on:change="variantImagesChanges(k)">
+<!--                                                @drop="dropFileStoreLogo"               -->
+                                                <div class="file-input-div bg-gray-100" @click="$refs['packet_variant_images_' + k][0].click()" @dragover="$dragoverFile" @dragleave="$dragleaveFile" >
+                                                    <label><i class="fa fa-cloud-upload fa-2x"></i></label>
+                                                    <label>{{ __('drop_files_here_or_click_to_upload') }}</label>
+                                                </div>
+
+                                                <span class="text text-primary">Please choose square image of larger than 350px*350px &amp; smaller than 550px*550px.</span>
+
+                                                <div class="row">
+<!--                                                    <div class="col-md-4 image-container" v-if="variantImages[k].length !== 0" v-for="(image, index) in variantImages[k]">-->
+                                                    <div class="col-md-2 image-container" v-for="(image, index) in variantImages[k]">
+                                                        <img class="img-thumbnail custom-image" :src="image.url" title='Selected Variant Image' alt='Selected Variant Image'/>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-2 image-container" v-if="input.images.length !== 0" v-for="(image, index) in input.images">
+                                                        <img class="img-thumbnail custom-image" :src="$storageUrl + image.image" title='Variant Image' alt='Variant Image'/>
+                                                        <button type="button" @click="deleteImage(index, image.id, false, k)" class="btn btn-sm btn-danger btn-remove"> <i class="fa fa-times-circle"></i> </button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="col-md-2 offset-md-10 text-end" v-if="k === 0">
+                                            <a style="cursor: pointer;" class="btn btn-primary" v-b-tooltip.hover title="Add variant of product" @click="addRow">
+                                                <i class="fa fa-plus-square"></i> {{ __('add_variant') }}
+                                            </a>
+                                        </div>
+                                        <div class="col-md-2 offset-md-10 text-end" v-if="k !== 0">
+                                            <a style="cursor: pointer;" class="btn btn-danger" v-b-tooltip.hover title="Remove variant of product" @click="remove(k)">
+                                                <i class="fa fa-times"></i> {{ __('remove_variant') }}
+                                            </a>
+                                        </div>
+
                                     </div>
                                 </div>
+
+                                <div id="loose_div" v-if="type === 'loose'">
+                                    <div class="list-group-item" v-for="(input,k) in inputs" :key="k">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group loose_div">
+                                                    <label>{{ __('measurement') }}</label> <i class="text-danger">*</i>
+
+<!--                                                    <input type="number" step="any" min="0" class="form-control" placeholder="0" v-model="input.loose_measurement">-->
+
+                                                    <b-input-group class="mb-2">
+                                                        <input type="number" step="any" min="0" class="form-control" placeholder="0" v-model="input.loose_measurement">
+                                                        <input type="text" class="form-control" placeholder="Custom title" v-model="input.loose_custom_title">
+                                                    </b-input-group>
+
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group loose_div">
+                                                    <label>{{ __('price') }} ( {{ $currency }} ):</label> <i class="text-danger">*</i>
+                                                    <input type="number" step="any" min="0" class="form-control" placeholder="0.00"
+                                                           v-model="input.loose_price">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group loose_div">
+                                                    <label for="discounted_price">{{ __('discounted_price') }} ( {{ $currency }} ):</label>
+                                                    <input type="number" step="any" min="0" class="form-control" placeholder="0.00" id="discounted_price"
+                                                           v-model="input.loose_discounted_price">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group loose_div">
+                                                    <label>{{ __('variant_images') }}</label>
+<!--                                                @drop="dropFileStoreLogo"               -->
+                                                    <input type="file" accept="image/*" :ref="'loose_variant_images_'+k " multiple  class="file-input" v-on:change="variantImagesChanges(k)" @dragover="$dragoverFile" @dragleave="$dragleaveFile">
+                                                    <div class="file-input-div bg-gray-100" @click="$refs['loose_variant_images_' + k][0].click()">
+                                                        <label><i class="fa fa-cloud-upload fa-2x"></i></label>
+                                                        <label>{{ __('drop_files_here_or_click_to_upload') }}</label>
+                                                    </div>
+
+
+                                                    <span class="text text-primary">Please choose square image
+                                                        of larger than 350px*350px &amp; smaller than
+                                                        550px*550px.</span>
+                                                    <!--                                                    <div>
+                                                                                                            <img v-if="input.loose_images.length !== 0"
+                                                                                                                 v-for="loose_image in input.loose_images "
+                                                                                                                 :src="$storageUrl + loose_image" title='Main Image' alt='Main Image' style="max-width:100%" class="mt-2 ml-1" />
+                                                                                                        </div>-->
+
+                                                    <div class="row">
+                                                        <div class="col-md-2 image-container" v-if="input.loose_images.length !== 0" v-for="(image, index) in input.loose_images">
+                                                            <img class="img-thumbnail custom-image" :src="$storageUrl + image.image" title='Variant Image' alt='Variant Image'/>
+                                                            <button type="button" @click="deleteImage(index, image.id, false, k)" class="btn btn-sm btn-danger btn-remove"> <i class="fa fa-times-circle"></i> </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4 image-container" v-if="variantImages[k].length !== 0" v-for="(image, index) in variantImages[k]">
+                                                            <img class="img-thumbnail custom-image" :src="image.url" title='Selected Variant Image' alt='Selected Variant Image'/>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-md-2 offset-md-10 text-end" v-if="k === 0">
+                                                <a style="cursor: pointer;" class="btn btn-primary" v-b-tooltip.hover title="Add variant of product" @click="addRow">
+                                                    <i class="fa fa-plus-square"></i> {{ __('add_variant') }}
+                                                </a>
+                                            </div>
+                                            <div class="col-md-2 offset-md-10 text-end" v-if="k !== 0">
+                                                <a style="cursor: pointer;" class="btn btn-danger" v-b-tooltip.hover title="Remove variant of product" @click="remove(k)">
+                                                    <i class="fa fa-times"></i> {{ __('remove_variant') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3" id="loose_stock_div" v-if="type === 'loose'">
+                                    <div class="col-md-4">
+                                        <div class="form-group" v-if="is_unlimited_stock!=1">
+                                            <label>{{ __('stock') }} </label> <i class="text-danger">*</i>
+                                            <input type="number" step="any" min="0" class="form-control" v-model="loose_stock"><br>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{ __('unit') }} </label>
+                                            <select class="form-control form-select" name="loose_stock_unit_id" v-model="loose_stock_unit_id">
+                                                <option value="">{{ __('select_unit') }}</option>
+                                                <option v-for="(unit,key) in units" :value="unit.id">{{ unit.short_code }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{ __('status') }} </label>
+                                            <select name="status" class="form-control form-select" v-model="status">
+                                                <option value="">{{ __('select_status') }}</option>
+                                                <option value="1">{{ __('available') }}</option>
+                                                <option value="0">{{ __('sold_out') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>{{__('product_settings')}}</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('category') }} <i class="text-danger">*</i></label>
+
+                                            <select class="form-control form-select" v-model="category_id"
+                                                    v-html="categoryOptions" :disabled="login_user.role_id==1 ? false : true">
+                                            </select>
+
+<!--                                            <select class="form-control form-select" v-model="category_id">
+                                                <option value="">Select Category</option>
+                                                <option v-for="category in categories" :value="category.id">{{ category.name }}</option>
+                                            </select>-->
+                                        </div>
+                                    </div>
+                                    <!--                                        <div class="col-md-6">
+                                                                                 <div class="form-group">
+                                                                              <label for="subcategory_id">Sub Category :</label>
+                                                                                <select name="subcategory_id" id="subcategory_id" class="form-control">
+                                                                                    <option value="">&#45;&#45;Select Sub Category&#45;&#45;</option>
+                                                                                </select>
+                                                                             </div>
+                                                                            </div>-->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('product_type') }} </label>
+                                            <select class="form-control form-select" v-model="product_type" :disabled="login_user.role_id==1 ? false : true">
+                                                <option value="">{{ __('select_type') }}</option>
+                                                <option value="1">Veg</option>
+                                                <option value="2">Non Veg</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('manufacturer') }} </label>
+                                            <input type="text" :disabled="login_user.role_id==1 ? false : true" class="form-control" v-model="manufacturer" :placeholder="__('enter_manufacturer')">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('made_in') }}</label>
+                                            <multiselect v-model="made_in"
+                                                         :options="countries"
+                                                         :placeholder="__('select_and_search_country_name')"
+                                                         label="name"
+                                                         track-by="name" required :disabled="login_user.role_id==1 ? false : true">
+                                                <template slot="singleLabel" slot-scope="props">
+                                                            <span class="option__desc">
+                                                                <span class="option__title">{{ props.option.name }}</span>
+                                                            </span>
+                                                </template>
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="option__desc">
+                                                        <!--                                                            <span class="option__small">
+                                                                                                                        <img style="height: 25px; " class="option__image" :src="props.option.code" alt="Brand Logo">
+                                                                                                                    </span>-->
+                                                        <span class="option__title">{{ props.option.name }}</span>
+                                                        <span class="option__small">[{{ props.option.code }}]</span>
+                                                    </div>
+                                                </template>
+                                            </multiselect>
+
+                                        </div>
+                                    </div>
+                                <!--                                    <hr>
+                                                                    <div class="row offset-col-2">
+                                                                        <div class="col-md-4">
+                                                                            <label>Select Shipping Type :</label>
+                                                                            <i class="text-danger">*</i>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <div class="col-md-06">
+                                                                                <div class="form-group">
+                                                                                    <select class="form-control form-select" v-model="shipping_type" required>
+                                                                                        <option value="">Select Option</option>
+                                                                                        <option value="0">Local Shipping</option>
+                                                                                        <option value="1">Standard Shipping</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row local">
+                                                                        <div class="">
+                                                                            <div class="col-md-4">
+                                                                                <small>
+                                                                                    <a href="javascript:void(0)" class="local_shipping_info" data-toggle="modal"
+                                                                                       data-target="#exampleModal">
+                                                                                        What is delivery places?
+                                                                                    </a>
+                                                                                </small>
+                                                                                <div class="form-group">
+                                                                                    <label>Delivery Places :</label><i
+                                                                                    class="text-danger">*</i>
+                                                                                    <select class="form-control form-select"
+                                                                                            v-model="product_pincodes" required>
+                                                                                        <option value="">Select Option</option>
+                                                                                        <option value="included">Pincode Included</option>
+                                                                                        <option value="excluded">Pincode Excluded</option>
+                                                                                        <option value="all">Includes All</option>
+                                                                                    </select>
+                                                                                    <br>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4 pincodes">
+                                                                                <div class="form-group " style="margin-top: 18px;">
+                                                                                    <label>Select Pincodes <small>( Ex : 100,205, 360)</small></label>
+                                                                                    <select style="width: 520px;" v-model="pincode_ids_exc"
+                                                                                            class="form-control form-select"
+                                                                                            placeholder="Enter the pincode you want to allow delivery this product"
+                                                                                            multiple="">
+
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row standard" v-if="shipping_type === 'standard'">
+                                                                        <div class="">
+                                                                            <div class="col-md-4 ">
+                                                                                <small>
+                                                                                    <a href="javascript:Void(0)" class="standard_shipping_info"
+                                                                                       data-toggle="modal" data-target="#exampleModal">What is pickup places?</a>
+                                                                                </small>
+                                                                                <div class="form-group">
+                                                                                    <label>Select Pickup Places :</label>
+                                                                                    <i class="text-danger">*</i>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-md-4">
+                                                                                <label id="shipping_error" class="text-danger"></label>
+                                                                                <select name="pickup_location" v-model="sellers_pickup_locations"
+                                                                                        class="form-control form-select">
+                                                                                    <option class="defualt_select" value="">&#45;&#45; Select &#45;&#45;</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <hr>-->
+
                                     <div class="col-md-6">
                                         <div class="row">
                                             <div class="col-md-5">
@@ -149,7 +605,7 @@
                                                         buttons
                                                         button-variant="outline-primary"
                                                         required
-                                                        :disabled="login_user.role_id==1?false:true"
+                                                        :disabled="login_user.role_id==1 ? false : true"
                                                     ></b-form-radio-group>
                                                 </div>
                                             </div>
@@ -174,7 +630,7 @@
                                                                     ]"
                                                         buttons
                                                         button-variant="outline-primary"
-                                                        :disabled="login_user.role_id==1?false:true"
+                                                        :disabled="login_user.role_id==1 ? false : true"
                                                     ></b-form-radio-group>
                                                 </div>
                                             </div>
@@ -203,7 +659,7 @@
                                                                 { text: ' Yes', 'value': 1 },
                                                             ]"
                                                         buttons
-                                                        :disabled="login_user.role_id==1?false:true"
+                                                        :disabled="login_user.role_id==1 ? false : true"
                                                         button-variant="outline-primary"
                                                     ></b-form-radio-group>
                                                 </div>
@@ -218,7 +674,7 @@
                                                                 { text: ' Yes', 'value': 1 },
                                                             ]"
                                                         buttons
-                                                        :disabled="login_user.role_id==1?false:true"
+                                                        :disabled="login_user.role_id==1 ? false : true"
                                                         button-variant="outline-primary"
                                                     ></b-form-radio-group>
                                                 </div>
@@ -226,7 +682,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label>{{ __('total_allowed_quantity') }}  </label>
-                                                    <input type="number" :disabled="login_user.role_id==1?false:true" min="0" class="form-control" v-model="max_allowed_quantity">
+                                                    <input type="number" :disabled="login_user.role_id==1 ? false : true" min="0" class="form-control" v-model="max_allowed_quantity">
                                                     <span class="text text-primary">{{ __('keep_blank_if_no_such_limit') }}</span>
                                                 </div>
                                             </div>
@@ -234,7 +690,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <template v-if="this.$roleSeller == login_user.role.name">
-                                            <input type="hidden" v-model="is_approved" value="0" :disabled="login_user.role_id==1?false:true">
+                                            <input type="hidden" v-model="is_approved" value="0" :disabled="login_user.role_id==1 ? false : true">
                                         </template>
                                         <template v-else>
                                             <div class="form-group">
@@ -242,11 +698,11 @@
                                                 <div id="status" class="btn-group">
                                                     <label class="btn btn-primary" data-toggle-class="btn-primary"
                                                            data-toggle-passive-class="btn-default">
-                                                        <input type="radio" v-model="is_approved" :disabled="login_user.role_id==1?false:true" value="1"> Approved
+                                                        <input type="radio" v-model="is_approved" :disabled="login_user.role_id==1 ? false : true" value="1"> Approved
                                                     </label>
                                                     <label class="btn btn-danger" data-toggle-class="btn-danger"
                                                            data-toggle-passive-class="btn-default">
-                                                        <input type="radio" v-model="is_approved" :disabled="login_user.role_id==1?false:true" value="2">
+                                                        <input type="radio" v-model="is_approved" :disabled="login_user.role_id==1 ? false : true" value="2">
                                                         Not-Approved
                                                     </label>
                                                 </div>
@@ -342,6 +798,9 @@ export default {
         this.getCategories();
         this.getSellers();
         this.getTaxes();
+        this.getUnits();
+        this.getBrands();
+        this.getCountries();
         this.getOrderStatus();
         if(this.$roleSeller == this.login_user.role.name){
             this.seller_id = this.login_user.seller.id;
@@ -433,6 +892,36 @@ export default {
             }
         },
 
+        variantImagesChanges(index) {
+            //this.variantImages = {};
+            let tempImages = [];
+            Vue.set(this.variantImages, index, []);
+            //console.log("this.variantImages => ",this.variantImages);
+            if(this.type === 'packet') {
+                for (var i = 0; i < this.$refs['packet_variant_images_'+index][0].files.length; i++) {
+                    let image = {};
+                    let file = this.$refs['packet_variant_images_'+index][0].files[i];
+                    image.url = URL.createObjectURL(file);
+                    image.name = file.name;
+                    //this.variantImages[index].push(image);
+                    tempImages.push(image);
+                    //this.variantImages[index] = tempImages;
+                    Vue.set(this.variantImages, index, tempImages);
+                }
+            }else{
+                for (var i = 0; i < this.$refs['loose_variant_images_'+index][0].files.length; i++) {
+                    let image = {};
+                    let file = this.$refs['loose_variant_images_'+index][0].files[i];
+                    image.url = URL.createObjectURL(file);
+                    image.name = file.name;
+                    //this.variantImages[index].push(image);
+
+                    tempImages.push(image);
+                    Vue.set(this.variantImages, index, tempImages);
+                }
+            }
+        },
+
         getSellerCategories(){
             if (this.seller_id !== 0 && this.seller_id !== ""){
                 this.isLoading = true;
@@ -491,6 +980,36 @@ export default {
                     //console.log("taxes : ", this.taxes);
                 });
         },
+        getUnits() {
+            this.isLoading = true
+            axios.get(this.$apiUrl + '/units/get')
+                .then((response) => {
+                    this.isLoading = false
+                    let data = response.data;
+                    this.units = data.data
+                    //console.log("units : ", this.units);
+                });
+        },
+        getBrands() {
+            this.isLoading = true
+            axios.get(this.$apiUrl + '/products/brands/get')
+                .then((response) => {
+                    this.isLoading = false
+                    let data = response.data;
+                    this.brands = data.data
+                    // console.log("brands : ", this.brands);
+                });
+        },
+        getCountries() {
+            this.isLoading = true
+            axios.get(this.$apiUrl + '/countries')
+                .then((response) => {
+                    this.isLoading = false
+                    let data = response.data;
+                    this.countries = data.data
+                    //console.log("countries : ", this.countries);
+                });
+        },
 
         getOrderStatus() {
             this.isLoading = true
@@ -504,11 +1023,12 @@ export default {
 
         getProduct() {
             this.isLoading = true;
+
             axios.get(this.$apiUrl + '/products/edit/' + this.id)
                 .then((response) => {
                     let data = response.data;
                     if (data.status === 1) {
-                        console.log("data=>",response.data);
+                        //console.log("data=>",response.data);
                         this.record = data.data
                         this.isCommon = this.record.is_common==1?true:false;
                         console.log(this.record.is_common)
@@ -559,15 +1079,26 @@ export default {
                         this.other_images = this.record.images;
 
                         let vm = this;
+                        
                         if (this.type == 'packet') {
                             this.inputs = [];
                             this.record.variants.forEach(function (item) {
+                                
+                        // console.log('HAHAHAH');
+                        // console.log(vm.record.seller_products[0].price);
+                        // console.log(vm.record.seller_products[0].discounted_price);
+                        // console.log(vm.loggedUser?.role?.name);
                                 var variantData = {
                                     'id': (item.id)?item.id:"",
                                     'packet_measurement': item.measurement,
                                     //'packet_measurement_unit_id': item.measurement_unit_id,
-                                    'packet_price': item.price,
-                                    'discounted_price': item.discounted_price,
+                                   // 'packet_price': item.price,
+                                   // 'discounted_price': item.discounted_price,
+
+                                    'packet_price': (vm.loggedUser?.role?.name==="Seller") ? vm.record.seller_products[0]?.price : item.price,
+                                    'discounted_price': (vm.loggedUser?.role?.name==="Seller") ? vm.record.seller_products[0]?.discounted_price : item.discounted_price,
+
+
                                     'packet_stock': item.stock,
                                     'packet_stock_unit_id': item.stock_unit_id,
                                     'packet_status': item.status,
@@ -597,8 +1128,8 @@ export default {
                                     'loose_measurement': item.measurement,
                                     'loose_custom_title': item.custom_title??"",
                                     //'loose_measurement_unit_id': item.measurement_unit_id,
-                                    'loose_price': item.price,
-                                    'loose_discounted_price': item.discounted_price,
+                                    'loose_price': (vm.loggedUser?.role?.name==="Seller") ? vm.record.seller_products[0]?.price : item.price,
+                                    'loose_discounted_price': (vm.loggedUser?.role?.name==="Seller") ? vm.record.seller_products[0]?.discounted_price : item.discounted_price,
                                     'packet_stock': item.stock,
                                     'loose_images': item.images,
                                 };
@@ -634,7 +1165,6 @@ export default {
             this.isLoading = true;
             let vm = this;
             let formData = new FormData();
-
             if (this.id) {
                 formData.append('id', this.id);
                 formData.append('deleteImageIds', JSON.stringify(this.deleteImageIds));
@@ -642,19 +1172,87 @@ export default {
             formData.append('name', this.name);
             formData.append('slug', this.slug);
             formData.append('seller_id', this.seller_id);
+            formData.append('tags', this.tags);
             formData.append('tax_id', this.tax_id);
-            formData.append('price', (this.packet_price != undefined) ? this.packet_price : 0);
-            formData.append('discounted_price', (this.discounted_price != undefined) ? this.discounted_price : 0);
+            formData.append('brand_id', this.brand ? this.brand.id : 0);
+            formData.append('description', this.description);
+            formData.append('type', this.type);
+            formData.append('is_unlimited_stock', this.is_unlimited_stock);
+
+            /*packet*/
+            if (this.type === 'packet') {
+                for (let i = 0; i < this.inputs.length; i++) {
+
+                    formData.append('variant_id[]', (this.inputs[i].id)?this.inputs[i].id:"");
+                    formData.append('packet_measurement[]', this.inputs[i].packet_measurement ?? 0);
+
+                    formData.append('packet_price[]', (this.inputs[i].packet_price != undefined) ? this.inputs[i].packet_price : 0);
+                    formData.append('discounted_price[]', (this.inputs[i].discounted_price != undefined) ? this.inputs[i].discounted_price : 0);
+                    formData.append('packet_stock[]', (this.inputs[i].packet_stock != undefined) ? this.inputs[i].packet_stock : 0);
+                    formData.append('packet_stock_unit_id[]', (this.inputs[i].packet_stock_unit_id != undefined) ? this.inputs[i].packet_stock_unit_id : 0);
+                    formData.append('packet_status[]', (this.inputs[i].packet_status != undefined) ? this.inputs[i].packet_status : 0);
+
+
+
+                    for (var j = 0; j < this.$refs['packet_variant_images_' + i][0].files.length; j++) {
+                        let file = this.$refs['packet_variant_images_' + i][0].files[j];
+                        formData.append('packet_variant_images_' + i + '[]', file);
+                    }
+                }
+            }
+
+            /*loose*/
+            if (this.type === 'loose') {
+                for (let i = 0; i < this.inputs.length; i++) {
+                    formData.append('variant_id[]', (this.inputs[i].id)?this.inputs[i].id:"");
+                    formData.append('loose_measurement[]', this.inputs[i].loose_measurement);
+                    formData.append('loose_custom_title[]', this.inputs[i].loose_custom_title);
+
+                    formData.append('loose_price[]', (this.inputs[i].loose_price != undefined) ? this.inputs[i].loose_price : 0);
+                    formData.append('loose_discounted_price[]', (this.inputs[i].loose_discounted_price != undefined) ? this.inputs[i].loose_discounted_price : 0);
+                    formData.append('packet_stock[]', (this.inputs[i].packet_stock != undefined) ? this.inputs[i].packet_stock : 0);
+
+                    for (var j = 0; j < this.$refs['loose_variant_images_' + i][0].files.length; j++) {
+                        let file = this.$refs['loose_variant_images_' + i][0].files[j];
+                        formData.append('loose_variant_images_' + i + '[]', file);
+                    }
+                }
+                formData.append('loose_stock', this.loose_stock);
+                formData.append('loose_stock_unit_id', this.loose_stock_unit_id);
+                formData.append('status', this.status);
+            }
+
+
+            formData.append('loose_stock', (this.loose_stock != undefined) ? this.loose_stock : 0);
+            formData.append('loose_stock_unit_id', (this.loose_stock_unit_id != undefined) ? this.loose_stock_unit_id : 0);
+            formData.append('status', (this.status != undefined) ? this.status : 0);
+
             formData.append('category_id', this.category_id);
+            formData.append('product_type', this.product_type);
+            formData.append('manufacturer', this.manufacturer);
+
+            formData.append('made_in', this.made_in ? this.made_in.id : 0);
+
+            formData.append('shipping_type', this.shipping_type);
+
+            formData.append('pincode_ids_exc', this.pincode_ids_exc);
+
             formData.append('return_status', this.return_status);
             formData.append('return_days', this.return_days);
             formData.append('cancelable_status', this.cancelable_status);
             formData.append('till_status', this.till_status);
             formData.append('cod_allowed_status', this.cod_allowed_status);
             formData.append('max_allowed_quantity', this.max_allowed_quantity);
+
             formData.append('is_approved', this.is_approved);
+            formData.append('is_common', this.isCommon?1:0);
             formData.append('tax_included_in_price', this.tax_included_in_price);
             formData.append('image', this.image);
+            // Other Images
+            for (var i = 0; i < this.$refs.file_other_images.files.length; i++) {
+                let file = this.$refs.file_other_images.files[i];
+                formData.append('other_images[]', file);
+            }
 
             let url = this.$apiUrl + '/products/save';
             if (this.id) {
@@ -715,9 +1313,23 @@ export default {
                             this.inputs[key].loose_images.splice(index, 1);
                         }
                     }
+                    //console.log("this.deleteImageIds =>", this.deleteImageIds);
                 }
             });
         },
+        changeUnits: function () {
+            console.log('changes');
+            /*if(this.type === 'packet' ){
+                for(let i=0; i< this.inputs.length;i++) {
+                    console.log('changes i: ' + i);
+                    if(i>0) {
+                        this.inputs[i].packet_measurement_unit_id = this.inputs[0].packet_measurement_unit_id;
+                    }
+                    console.log('changes after: ' + this.inputs[i].packet_measurement_unit_id);
+                }
+
+            }*/
+        }
     },
 
 };

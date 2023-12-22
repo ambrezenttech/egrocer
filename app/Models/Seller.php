@@ -58,6 +58,11 @@ class Seller extends Model
     public function admin(){
         return $this->belongsTo(Admin::class,'admin_id','id');
     }
+
+    public function sellerProducts(){
+
+        return $this->hasMany(SellerProduct::class,'seller_id','id');
+    }
         
     public static function apply(Request $filters)
     {

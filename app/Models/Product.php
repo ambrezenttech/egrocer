@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Models;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
@@ -13,44 +15,62 @@ class Product extends Model
 
     protected $appends = ['image_url'];
 
-    protected $hidden=['created_at','updated_at','deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
-    public function seller(){
+    public function seller()
+    {
 
-        return $this->belongsTo(Seller::class,'seller_id','id');
+        return $this->belongsTo(Seller::class, 'seller_id', 'id');
     }
 
-    public function tax(){
-        return $this->belongsTo(Tax::class,'tax_id','id');
+    public function tax()
+    {
+        return $this->belongsTo(Tax::class, 'tax_id', 'id');
     }
 
-    public function madeInCountry(){
-        return $this->belongsTo(Country::class,'made_in','id');
+    public function madeInCountry()
+    {
+        return $this->belongsTo(Country::class, 'made_in', 'id');
     }
 
-    public function category(){
-        return $this->belongsTo(Category::class,'category_id','id');
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
-    public function variants(){
+    public function variants()
+    {
 
-        return $this->hasMany(ProductVariant::class,'product_id','id');
+        return $this->hasMany(ProductVariant::class, 'product_id', 'id');
     }
 
-    public function images(){
+    public function sellerProducts()
+    {
+        $authuser = Auth::user();
+        if ($authuser->role_id == 3) {
+            $seller = Seller::where('admin_id', $authuser->id)->first();
+            return $this->hasMany(SellerProduct::class, 'product_id', 'id')->where('seller_id', $seller->id);
+        } else {
+            return $this->hasMany(SellerProduct::class, 'product_id', 'id');
+        }
+    }
 
-        return $this->hasMany(ProductImages::class,'product_id','id')
-            ->where('product_variant_id',0);
+    public function images()
+    {
+
+        return $this->hasMany(ProductImages::class, 'product_id', 'id')
+            ->where('product_variant_id', 0);
     }
 
 
-    public function getImageUrlAttribute(){
+    public function getImageUrlAttribute()
+    {
 
-        if($this->image){
+        if ($this->image) {
             //$image_url = \Storage::url($this->image);
-            $image_url = asset('storage/'.$this->image);
+            $image_url = asset('storage/' . $this->image);
             //$this->image;
-        }else{
+        } else {
             //$this->image = '';
             $image_url = '';
         }

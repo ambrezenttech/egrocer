@@ -194,7 +194,7 @@ const SellerTaxes = () => import("../views/Sellers/Taxes");
 const SellerBrands = () => import("../views/Sellers/Brands");
 const SellerUnits = () => import("../views/Sellers/Units");
 
-const SellerProducts = () => import("../views/Product/Products");
+const SellerProducts = () => import("../views/SellerProduct/Products");
 const SellerEditProduct = () => import("../views/Product/EditProduct");
 const SellerViewProduct = () => import("../views/Product/ViewProduct");
 const SellerMedia = () => import("../views/Product/Media");
@@ -1388,17 +1388,17 @@ function configRoutes() {
                     },
                 },
 
-                {
-                    path: "manage_products/create",
-                    name: "SellerCreateProduct",
-                    component: SellerEditProduct,
-                    meta: {
-                        permission: 'order_list',
-                        role: sellerRoles,
-                        title:'Product Create'
-                    },
+                // {
+                //     path: "manage_products/create",
+                //     name: "SellerCreateProduct",
+                //     component: SellerEditProduct,
+                //     meta: {
+                //         permission: 'order_list',
+                //         role: sellerRoles,
+                //         title:'Product Create'
+                //     },
 
-                },
+                // },
                 {
                     path: "manage_products/edit/:id",
                     name: "SellerEditProduct",
