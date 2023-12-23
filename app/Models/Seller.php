@@ -64,19 +64,96 @@ class Seller extends Model
         return $this->hasMany(SellerProduct::class,'seller_id','id');
     }
         
+    public static function isJson($string) {
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
+     }
+
     public static function apply(Request $filters)
     {
-        $seller = (new Seller)->newQuery();;
-
+        $seller = (new Seller)->newQuery();
         if ($filters->has('lat') && $filters->has('long')) {
             $latitude = $filters->lat;
             $longitude = $filters->long;
-            $seller = DB::table('sellers')
+
+            $products = [];
+            if($filters->has('products')){
+                
+                if(!self::isJson($filters->products)){
+                    echo ('Not valid json'); exit;
+                }
+                $products = json_decode($filters->products);
+            }
+            
+            $productIds = array_column($products, 'product_id');
+            $priceVar = '';
+            $totalPrice = " ";
+            if(!empty($products)){
+          
+                foreach ($products as $i => $product) {
+                    $productId = $product->product_id;
+                    $productQty = $product->qty;
+                
+                    $priceVar .= "  SUM(CASE
+                        WHEN seller_products.product_id = $productId THEN seller_products.price * $productQty
+                            ELSE 0
+                        END) AS product_$productId"."_price";
+                    if($i<count($products) -1){
+                        $priceVar .= ", ";
+                    }
+
+                    $totalPrice .= " SUM(CASE
+                        WHEN seller_products.product_id = $productId THEN seller_products.price * $productQty
+                            ELSE 0
+                        END) ";
+
+                    if($i<count($products) -1){
+                        $totalPrice .= " + ";
+                    }
+                }
+
+                $seller = DB::table('sellers')
+                ->join('seller_products', 'sellers.id', '=', 'seller_products.seller_id')
+                ->join('products', 'seller_products.product_id', '=', 'products.id')
+                ->whereIn('seller_products.product_id', $productIds)
+                ->where(function ($query) use ($products) {
+                    foreach ($products as $product) {
+                        $query->orWhere(function ($q) use ($product) {
+                            $q->where('seller_products.product_id', $product->product_id);
+                        });
+
+                    }
+                })
+                ->groupBy('sellers.id', 'sellers.latitude', 'sellers.longitude')
+                ->havingRaw('COUNT(DISTINCT products.id) = ?', [count($products)]) //this condition makes sure sellers not selling a particular products gets ignored
                 ->select(
                     'sellers.*',
-                    DB::raw('(6371 * acos(cos(radians(' . $latitude . ')) * cos(radians(latitude)) * cos(radians(`longitude`) - radians(' . $longitude . ')) + sin(radians(' . $latitude . ')) * sin(radians(latitude)))) AS distance')
+                    DB::raw("
+                        SQRT(
+                            POW((sellers.latitude - $latitude), 2) +
+                            POW((sellers.longitude - $longitude), 2)
+                        ) AS distance"
+                    ),
+                    DB::raw('SUM(seller_products.price * seller_products.enabled) AS complete_price'),
                 )
+                ->selectRaw(" $totalPrice AS total_price") 
+                ->selectRaw(" $priceVar") 
                 ->orderBy('distance', 'asc');
+
+            } else {
+                  $seller = DB::table('sellers')
+                    ->join('seller_products', 'seller_products.seller_id', '=', 'sellers.id')
+                    ->select(
+                        'sellers.*',
+                        'seller_products.price',
+                        'seller_products.discounted_price',
+                        'seller_products.enabled',
+                        DB::raw('(6371 * acos(cos(radians(' . $latitude . ')) * cos(radians(latitude)) * cos(radians(`longitude`) - radians(' . $longitude . ')) + sin(radians(' . $latitude . ')) * sin(radians(latitude)))) AS distance')
+                    ) 
+                    ->orderBy('distance', 'asc');
+
+            }
+           
         }
 
         // Search for a seller based on their name.

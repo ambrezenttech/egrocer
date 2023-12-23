@@ -67,6 +67,7 @@ class ProductApiController extends Controller
             $select = ", sp.price, sp.discounted_price, sp.seller_id as seller_product_seller_id ";
 
             // $where .= empty($where) ? " WHERE sp.seller_id = $seller->id" : " AND sp.seller_id = $sellerRecord->id"; 
+            $where .= empty($where) ? " WHERE p.category_id  In ($sellerRecord->categories)" : " AND p.category_id  In ($sellerRecord->categories)"; 
 
         }
         /*if(isset($request->shipping_type) && $request->shipping_type !== "" ){
