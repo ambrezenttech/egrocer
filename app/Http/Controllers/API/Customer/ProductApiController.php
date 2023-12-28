@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Repository\CategoryRepository;
 use App\Http\Repository\ProductRepository;
 use App\Models\Admin;
+use App\Models\Category;
 use App\Models\Cart;
 use App\Models\City;
 use App\Models\Favorite;
@@ -1145,5 +1146,74 @@ class ProductApiController extends Controller
         $pr_name = explode(",", $pr_names);
 
         return CommonHelper::responseWithData($pr_name);
+    }
+    
+
+    public function fetchProducts(Request $request){
+        if(!isset($request->type)){
+            $sellers = Seller::orderBy('id','DESC')->get()->toArray();
+        }
+        $categories = Category::orderBy('id','DESC')->get()->toArray();
+
+        $join = "LEFT JOIN `categories` c ON c.id = p.category_id
+        LEFT JOIN `product_variants` pv ON pv.product_id = p.id
+            LEFT JOIN `units` u ON u.id = pv.stock_unit_id
+            LEFT JOIN `sellers` s ON s.id = p.seller_id
+            LEFT JOIN `order_status_lists` osl ON osl.id = p.till_status
+            ";
+        $where = '';
+
+        $select = "";
+        $authuser = Auth::user();
+        // if($authuser->role_id==3) {
+        //     $sellerRecord = Seller::where('admin_id',$authuser->id)->first(); 
+        //     $join.= " LEFT JOIN `seller_products` sp ON sp.product_id = p.id  AND sp.seller_id = $sellerRecord->id";
+
+        //     $select = ", sp.price, sp.discounted_price, sp.seller_id as seller_product_seller_id ";
+
+        //     // $where .= empty($where) ? " WHERE sp.seller_id = $seller->id" : " AND sp.seller_id = $sellerRecord->id"; 
+        //     $where .= empty($where) ? " WHERE p.category_id  In ($sellerRecord->categories)" : " AND p.category_id  In ($sellerRecord->categories)"; 
+
+        // }
+        /*if(isset($request->shipping_type) && $request->shipping_type !== "" ){
+            $where .= empty($where) ? " WHERE p.standard_shipping = $request->shipping_type" : " AND p.standard_shipping = $request->shipping_type";
+        }*/
+
+        if(isset($request->is_approved) && $request->is_approved !== "" ){
+            $where .= empty($where) ? " WHERE p.is_approved = $request->is_approved" : " AND p.is_approved = $request->is_approved";
+        }
+
+        if(isset($request->seller) && $request->seller !== "" ){
+            $where .= empty($where) ? " WHERE p.seller_id = $request->seller" : " AND p.seller_id = $request->seller";
+        }
+
+        if(isset($request->category) && $request->category !== "" ){
+            $where .= empty($where) ? " WHERE p.category_id = $request->category" : " AND p.category_id = $request->category";
+        }
+        //here Sold Out as 0
+        if(isset($request->type) && $request->type === 'sold_out'){
+
+            $where .= empty($where) ? " WHERE (pv.stock <=0 OR pv.status = '0') AND p.is_unlimited_stock = 0" : " AND (stock <=0 OR pv.status = '0') AND p.is_unlimited_stock = 0";
+        }
+        //here Available as 1, low_stock_limit
+        if(isset($request->type) && $request->type === 'low_stock'){
+            $low_stock_limit = Setting::where('variable', 'low_stock_limit')->first();
+            $where .= empty($where) ? " WHERE pv.stock <= ".$low_stock_limit['value']." AND pv.status = '1' AND p.is_unlimited_stock != '1'" : " AND stock <= ".$low_stock_limit['value']." AND pv.status = '1' AND p.is_unlimited_stock != '1'";
+        }
+
+        $products  = \DB::select(\DB::raw("SELECT p.id AS product_id,p.*, p.name,p.status,p.tax_id, p.image,
+        s.name as seller_name, p.indicator, p.manufacturer, p.made_in, p.return_status, p.cancelable_status, p.till_status, osl.status as till_status_name ,p.description,
+        pv.id as product_variant_id,pv.measurement, pv.status as pv_status , pv.stock,pv.stock_unit_id, u.short_code,
+        (select short_code from units where units.id = pv.stock_unit_id) as stock_unit $select
+        FROM `products` p $join $where  order by p.id desc, pv.id asc "));
+
+        $data = array(
+            "categories" => $categories,
+            "products" => $products,
+        );
+        if(!isset($request->type)){
+            $data["sellers"] = $sellers;
+        }
+        return CommonHelper::responseWithData($data);
     }
 }
