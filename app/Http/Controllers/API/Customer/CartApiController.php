@@ -346,9 +346,9 @@ class CartApiController extends Controller
                             $total_quantity = $total_quantity - $temp;
                             $total_quantity = $total_quantity + $qty;
 
-                            if ($total_quantity > $total_allowed_quantity) {
-                                return CommonHelper::responseSuccess(__('total_allowed_quantity_for_this_product_is'). $total_allowed_quantity);
-                            }
+                            // if ($total_quantity > $total_allowed_quantity) {
+                            //     return CommonHelper::responseSuccess(__('total_allowed_quantity_for_this_product_is'). $total_allowed_quantity);
+                            // }
                         }
 
                         if ($cart) {
@@ -375,9 +375,9 @@ class CartApiController extends Controller
                         if ($user->status == 1) {
 
                             $total_allowed_quantity = Product::where('id', $product_id)->first()->pluck('total_allowed_quantity');
-                            if ($total_allowed_quantity && $qty > $total_allowed_quantity) {
-                                return CommonHelper::responseSuccess(__('total_allowed_quantity_for_this_product_is') . $total_allowed_quantity . '!');
-                            }
+                            // if ($total_allowed_quantity && $qty > $total_allowed_quantity) {
+                            //     return CommonHelper::responseSuccess(__('total_allowed_quantity_for_this_product_is') . $total_allowed_quantity . '!');
+                            // }
 
                             /* if item not found in user's cart add it */
                             $data = array(
