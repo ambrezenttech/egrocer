@@ -422,6 +422,11 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::group(['prefix' => 'panel_notification'], function () {
         Route::get('/', [\App\Http\Controllers\API\NotificationPanelApiController::class, 'getNotifications']);
     });
+    Route::group(['prefix' => 'corporation'], function () {
+        Route::get('/', [\App\Http\Controllers\API\CorporationApiController::class, 'index']);
+        Route::post('/set_commision', [\App\Http\Controllers\API\CorporationApiController::class, 'setCommision']);
+        // Route::post('/set_subscription', [\App\Http\Controllers\API\CorporationApiController::class, 'setSubscription']);
+    });
 
     /*Seller*/
     /***********************************************************************************************/

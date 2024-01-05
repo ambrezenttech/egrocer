@@ -25,6 +25,9 @@ Route::group(['middleware' => ['auth.customer']], function () {
     Route::post('/sectionproducts', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getSections']);
     Route::post('/allsections', [\App\Http\Controllers\API\Customer\SectionsApiController::class, 'getAllSections']);
 
+    Route::group(['prefix' => 'sellers'], function () {
+        Route::get('/fetch', [\App\Http\Controllers\API\Customer\SellerApiController::class, 'fetchSellers']);
+    });
 
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', [\App\Http\Controllers\API\Customer\ProductApiController::class, 'fetchProducts']);
