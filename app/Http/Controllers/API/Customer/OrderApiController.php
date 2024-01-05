@@ -41,7 +41,9 @@ class OrderApiController extends Controller
             'final_total' => 'required',
             'payment_method' => 'required',
             'address_id' => 'required',
-            'quantity' => 'required'
+            'quantity' => 'required',
+            'delivery_method' => 'required|string|in:schedule_delivery,quick_delivery,normal_delivery',
+            'pickup_datetime' => 'required_if:delivery_method,schedule_delivery'
         ], [
             'required' => 'The :attribute field is required.',
         ]);
@@ -205,6 +207,7 @@ class OrderApiController extends Controller
             $order->address_id = $address_id;
             $order->pickup_address = $pickup_address;
             $order->pickup_datetime = $pickup_datetime;
+            $order->delivery_method = $request->delivery_method;
             $order->save();
 
             $order_id = $order->id;
